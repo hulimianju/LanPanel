@@ -1,0 +1,107 @@
+# LanPanel
+
+局域网导航面板 + 设备发现。类似 Sun-Panel 的书签面板，额外提供局域网设备嗅探：用 ARP、mDNS、SSDP、NetBIOS 和端口指纹找出网内设备与服务，书签可以绑定到设备的 MAC 地址，设备 IP 变化后自动更新。**完全离线运行，不依赖外网。**
+
+> 当前进度：**阶段 1（导航面板）已完成**。设备发现（阶段 2）、IP 自动跟随（阶段 3）、Docker / 飞牛 / OpenWrt 打包（阶段 4）开发中。
+> 设计稿：`design/` 目录。
+
+## 特点
+
+- **单文件部署**：Go 编写，前端嵌入二进制，无运行时依赖；可运行在 x86、ARM、MIPS 路由器上
+- **占用低**：二进制约 8MB，常驻内存约 10–20MB；数据存为单个 JSON 文件，方便备份
+- **专业的界面**：深浅色主题，桌面与手机自适应
+- **壁纸深浅自适应**：上传壁纸后自动分析亮度，决定面板用深色调还是浅色调；遮罩、模糊可调，并实时显示文字对比度，低于 4.5:1 时给出一键修正
+- **内外网地址**：每个应用可同时填写内网与外网地址，按访问者 IP 自动选择，也可手动切换
+- **自动抓取**：填入地址后自动获取网站标题与图标（兼容局域网自签证书）
+
+## 快速开始
+
+```bash
+./lanpanel -listen :3080 -data ./data
+```
+
+浏览器打开 `http://<设备IP>:3080`，首次访问会引导创建管理员账号。
+
+| 参数 | 环境变量 | 默认值 | 说明 |
+|---|---|---|---|
+| `-listen` | `LANPANEL_LISTEN` | `:3080` | 监听地址 |
+| `-data` | `LANPANEL_DATA` | `./data` | 数据目录（`data.json` 与上传的图片） |
+| `-version` | | | 显示版本 |
+
+## Docker 部署
+
+```bash
+# 构建镜像（国内网络加上 BASE_REGISTRY 指定可用的镜像加速站）
+make docker BASE_REGISTRY=docker.m.daocloud.io
+
+# 在 Linux 主机上运行
+cd deploy/docker && docker compose up -d
+```
+
+镜像约 18MB，运行时内存约 10MB。**必须使用 host 网络**（compose 文件已配置）：在 bridge 网络下，所有访问者都显示为 Docker 网关 IP，内外网自动判断会失效；设备发现也收不到局域网广播。
+
+没有镜像仓库时，可以导出为文件，拷到 NAS 上导入：
+
+```bash
+make docker-save ARCH=amd64 BASE_REGISTRY=docker.m.daocloud.io   # 或 ARCH=arm64，生成 dist/lanpanel-docker-<架构>.tar.gz
+# 在 NAS 上：
+docker load < lanpanel-docker-amd64.tar.gz
+```
+
+推送多架构镜像（amd64 / arm64 / armv7）到仓库：`make docker-push IMAGE=<仓库地址>/lanpanel`
+
+## 使用说明
+
+- **编辑面板**：登录后点击右上角「编辑」进入编辑模式。卡片可以拖动排序，也能跨分组拖动；拖动分组左侧的手柄可以调整分组顺序；双击分组名可以重命名
+- **添加应用**：填写内网地址后点击「自动获取」，会自动抓取网站的标题和图标。只填 `192.168.1.23:5666` 也可以，会自动补全 `http://`
+- **搜索**：按 `/` 聚焦搜索框。只匹配到一个应用时，回车直接打开；否则回车用搜索引擎搜索
+- **内网 / 外网**：「自动」模式按访问者 IP 判断是否在局域网内，也支持 CGNAT 网段（Tailscale 等）。访客可以在右上角手动切换，选择只保存在自己的浏览器里
+- **壁纸**：在「设置 → 外观」中上传。系统会检测壁纸亮度并自动选择面板色调；遮罩的颜色与色调一致（深色调叠黑色，浅色调叠白色）。预览区与首页使用同一套样式，看到的效果就是首页的实际效果
+- **访客模式**：开启后，未登录的访客可以只读浏览面板；本机状态卡片只有登录后才显示
+- **备份**：「设置 → 备份与迁移」可以导出和导入 JSON，导入支持追加和覆盖两种方式
+
+## 开发
+
+依赖 Go 1.22+ 与 Node.js 20+。
+
+```bash
+make web          # 构建前端
+make run          # 启动后端 :3080
+make dev-web      # 另开终端：前端热更新 http://localhost:5173（接口代理到 :3080）
+make test         # 单元测试
+make cross        # 交叉编译 amd64 / arm64 / armv7 / mipsle / mips
+```
+
+### 目录结构
+
+```
+cmd/lanpanel/        程序入口
+internal/api/        HTTP 接口、认证中间件、静态资源
+internal/store/      JSON 文件存储（原子写入 + .bak 备份）
+internal/auth/       密码哈希、签名会话、登录限流
+internal/icon/       网站标题与图标抓取
+internal/sysinfo/    本机 CPU / 内存 / 网速采集
+web/                 Vue 3 + TypeScript + Tailwind 前端
+  src/styles/main.css    设计变量：界面主题 + 面板表面（壁纸深浅适配）
+  src/lib/luminance.ts   壁纸亮度采样与对比度计算
+design/              UI 设计稿（画布源文件）
+```
+
+### 主题与壁纸的样式体系
+
+样式分为两套相互独立的变量：
+
+1. **界面主题** `html[data-theme=light|dark]`：用于管理页面、弹窗和表单，由「设置 → 界面主题」控制，可以跟随系统
+2. **面板表面** `.lp-surface[data-tone][data-wp]`：用于首页叠在壁纸之上的文字和毛玻璃卡片
+   - `data-tone`：由壁纸亮度决定，与界面主题无关
+   - `data-wp=image`：图片壁纸时启用毛玻璃，卡片自带半透明底色，保证在任意图片上都有足够的对比度
+   - 浏览器不支持 `backdrop-filter` 时，自动提高卡片的不透明度
+
+组件只使用语义化的颜色类：管理页用 `bg-surface`、`text-fg-2` 这类，面板用 `lp-glass`、`text-s-fg` 这类。新增主题或色调时，只需要改 `main.css`。
+
+## 安全
+
+- 密码使用 bcrypt 存储；会话采用 HMAC 签名，修改密码后旧会话全部失效
+- 同一 IP 10 分钟内登录失败 8 次，会被锁定
+- 修改类接口只接受 JSON 或上传表单，配合 SameSite Cookie 防御 CSRF
+- 链接禁止 `javascript:`、`data:` 等可执行脚本的协议；上传的 SVG 以沙箱方式返回，其中的脚本不会执行

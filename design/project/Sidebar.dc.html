@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>侧边导航</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;family=Noto+Sans+SC:wght@300;400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#3F3F46;text-decoration:none}a:hover{color:#18181B}
+</style>
+</helmet>
+<nav aria-label="主导航" style="width: 232px; height: 1000px; box-sizing: border-box; padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; background: #FBFBFC; border-right: 1px solid #E8E8EC; font-family: 'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif; color: #18181B;">
+<div style="height: 36px; padding: 0 8px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
+<div style="width: 26px; height: 26px; border-radius: 7px; background: #4F46E5; display: flex; align-items: center; justify-content: center;">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12l6-6M19 12a7 7 0 1 1-7-7M15 12a3 3 0 1 1-3-3"></path></svg>
+</div>
+<span style="font-size: 15px; font-weight: 600; letter-spacing: -0.01em;">LanPanel</span>
+</div>
+<span style="padding: 0 10px 6px; font-size: 11px; font-weight: 500; color: #71717A;">工作台</span>
+<sc-for list="{{items}}" as="it" hint-placeholder-count="5">
+<a href="{{it.href}}" style="height: 36px; padding: 0 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; font-size: 14px; background: {{it.bg}}; color: {{it.fg}}; font-weight: {{it.weight}};">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="{{it.fg}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{it.icon}}"></path></svg>
+<span style="flex-grow: 1;">{{it.label}}</span>
+<sc-if value="{{it.hasBadge}}" hint-placeholder-val="{{false}}">
+<span style="min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; background: #EEF0FF; color: #4338CA; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center;">{{it.badge}}</span>
+</sc-if>
+</a>
+</sc-for>
+<div style="flex-grow: 1;"></div>
+<div style="padding: 12px; border-radius: 10px; border: 1px solid #E8E8EC; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #52525B;">
+<span style="width: 7px; height: 7px; border-radius: 4px; background: #22A06B;"></span>运行中 · 定时扫描已开启
+</div>
+<div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #71717A; line-height: 1.6;">OpenWrt 24.10 · aarch64<br>v0.1.0 · 内存 28 MB</div>
+</div>
+<div style="height: 44px; padding: 0 8px; margin-top: 6px; display: flex; align-items: center; gap: 10px;">
+<div style="width: 28px; height: 28px; border-radius: 14px; background: #E4E4E7; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #3F3F46;">A</div>
+<span style="flex-grow: 1; font-size: 13px; color: #3F3F46;">admin</span>
+<button aria-label="退出登录" style="width: 28px; height: 28px; border: 0; border-radius: 6px; background: transparent; display: flex; align-items: center; justify-content: center;">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5V3h4M16 17l5-5-5-5M21 12H9"></path></svg>
+</button>
+</div>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["panel","discovery","scan","rules","settings"],"default":"discovery"},"$preview":{"width":232,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+const active = this.props.active ?? 'discovery';
+const list = [
+{ key: 'panel', label: '面板', href: 'Main.dc.html', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z' },
+{ key: 'discovery', label: '设备发现', href: 'Discovery.dc.html', icon: 'M12 12l6-6M19 12a7 7 0 1 1-7-7M15 12a3 3 0 1 1-3-3', badge: '3' },
+{ key: 'scan', label: '扫描任务', href: 'Scan.dc.html', icon: 'M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7' },
+{ key: 'rules', label: '端口规则', href: 'Rules.dc.html', icon: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01' },
+{ key: 'settings', label: '设置', href: '#', icon: 'M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1M15 4v4M9 10v4M17 16v4' }
+];
+const items = list.map(it => ({
+...it,
+hasBadge: !!it.badge,
+bg: it.key === active ? '#EDEDF0' : 'transparent',
+fg: it.key === active ? '#18181B' : '#52525B',
+weight: it.key === active ? 500 : 400
+}));
+return { items };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.git
+.vscode
+data
+dist
+design
+deploy
+web/node_modules
+web/dist
+**/*.log
+**/.DS_Store

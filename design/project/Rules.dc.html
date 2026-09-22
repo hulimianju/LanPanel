@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>端口规则</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;family=Noto+Sans+SC:wght@300;400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif;background:#F7F7F8;color:#18181B}
+a{color:#4338CA;text-decoration:none}a:hover{color:#3730A3}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1000px; display: flex; background: #F7F7F8; font-family: 'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif; color: #18181B;">
+<dc-import name="Sidebar" active="rules" hint-size="232px,1000px"></dc-import>
+
+<main style="flex-grow: 1; min-width: 0; padding: 28px 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px;">
+<div style="display: flex; align-items: flex-end; gap: 10px;">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;">
+<h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;">端口规则</h1>
+<p style="margin: 0; font-size: 13px; color: #71717A;">86 条规则 · 71 条启用 · 内置 80 条，自定义 6 条</p>
+</div>
+<button style="height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #E4E4E7; background: #FFFFFF; font: inherit; font-size: 13px; font-weight: 500; color: #18181B;">导入 YAML</button>
+<button style="height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #E4E4E7; background: #FFFFFF; font: inherit; font-size: 13px; font-weight: 500; color: #18181B;">导出</button>
+<button style="height: 36px; padding: 0 14px; border-radius: 8px; border: 0; background: #4F46E5; font: inherit; font-size: 13px; font-weight: 500; color: #FFFFFF; display: flex; align-items: center; gap: 6px;">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>新建规则</button>
+</div>
+
+<div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: 180px minmax(0, 1fr) 360px; gap: 20px;">
+<nav aria-label="规则分类" style="display: flex; flex-direction: column; gap: 2px;">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="10">
+<a href="#" style="height: 34px; padding: 0 10px; border-radius: 8px; display: flex; align-items: center; font-size: 13px; background: {{c.bg}}; color: {{c.fg}}; font-weight: {{c.weight}};"><span style="flex-grow: 1;">{{c.name}}</span><span style="font-size: 12px; color: #71717A; font-variant-numeric: tabular-nums;">{{c.count}}</span></a>
+</sc-for>
+</nav>
+
+<div style="border-radius: 12px; background: #FFFFFF; border: 1px solid #E8E8EC; overflow: hidden; display: flex; flex-direction: column; min-width: 0;">
+<div style="height: 38px; padding: 0 16px; display: grid; grid-template-columns: minmax(0, 1.2fr) 110px 70px minmax(0, 1.5fr) 44px 40px; gap: 12px; align-items: center; background: #FAFAFB; border-bottom: 1px solid #EEEEF1; font-size: 12px; font-weight: 500; color: #71717A;">
+<span>名称</span><span>端口</span><span>协议</span><span>匹配条件</span><span>来源</span><span>启用</span>
+</div>
+<sc-for list="{{rules}}" as="r" hint-placeholder-count="12">
+<div style="height: 52px; padding: 0 16px; display: grid; grid-template-columns: minmax(0, 1.2fr) 110px 70px minmax(0, 1.5fr) 44px 40px; gap: 12px; align-items: center; border-bottom: 1px solid #F1F1F3; background: {{r.rowBg}};">
+<div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 7px; background: {{r.iconBg}}; display: flex; align-items: center; justify-content: center;">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{r.iconFg}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{r.icon}}"></path></svg></span>
+<span style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{r.name}}</span>
+</div>
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px;">{{r.ports}}</span>
+<span style="font-size: 12px; color: #52525B;">{{r.proto}}</span>
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11.5px; color: #52525B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{r.match}}</span>
+<span style="font-size: 12px; color: {{r.srcColor}};">{{r.src}}</span>
+<span role="switch" aria-checked="{{r.on}}" aria-label="启用 {{r.name}}" style="width: 30px; height: 18px; border-radius: 9px; background: {{r.swBg}}; display: flex; align-items: center; justify-content: {{r.swJustify}}; padding: 2px; box-sizing: border-box;"><span style="width: 14px; height: 14px; border-radius: 7px; background: #FFFFFF;"></span></span>
+</div>
+</sc-for>
+</div>
+
+<section aria-label="编辑规则" style="padding: 18px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E8E8EC; display: flex; flex-direction: column; gap: 14px;">
+<div style="display: flex; align-items: center; gap: 8px;">
+<h2 style="margin: 0; flex-grow: 1; font-size: 14px; font-weight: 600;">编辑规则 · 飞牛 fnOS</h2>
+<span style="height: 20px; padding: 0 6px; border-radius: 5px; background: #F4F4F5; font-size: 11px; color: #52525B; display: flex; align-items: center;">内置</span>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 12px; font-weight: 500; color: #3F3F46;">名称</span>
+<input value="飞牛 fnOS" style="height: 34px; box-sizing: border-box; padding: 0 10px; border-radius: 8px; border: 1px solid #E4E4E7; font: inherit; font-size: 13px;"></label>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<label style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 12px; font-weight: 500; color: #3F3F46;">端口</span>
+<input value="5666, 5667" style="height: 34px; box-sizing: border-box; padding: 0 10px; border-radius: 8px; border: 1px solid #E4E4E7; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 13px;"></label>
+<label style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 12px; font-weight: 500; color: #3F3F46;">分类</span>
+<span style="height: 34px; box-sizing: border-box; padding: 0 10px; border-radius: 8px; border: 1px solid #E4E4E7; font-size: 13px; display: flex; align-items: center;">NAS 与存储</span></label>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 12px; font-weight: 500; color: #3F3F46;">协议</span>
+<div role="group" aria-label="协议" style="display: flex; padding: 3px; border-radius: 9px; background: #EFEFF1;">
+<button style="flex-grow: 1; height: 28px; border: 0; border-radius: 6px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 500;">HTTP</button>
+<button style="flex-grow: 1; height: 28px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-size: 12px; color: #52525B;">HTTPS</button>
+<button style="flex-grow: 1; height: 28px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-size: 12px; color: #52525B;">TCP</button>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 12px; font-weight: 500; color: #3F3F46;">匹配条件（任一满足）</span>
+<sc-for list="{{conds}}" as="c" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 6px; font-size: 12px;">
+<span style="height: 30px; padding: 0 8px; border-radius: 7px; background: #F4F4F5; display: flex; align-items: center;">{{c.field}}</span>
+<span style="color: #71717A;">{{c.op}}</span>
+<span style="flex-grow: 1; height: 30px; padding: 0 8px; border-radius: 7px; border: 1px solid #E4E4E7; font-family: 'Geist Mono', ui-monospace, monospace; display: flex; align-items: center;">{{c.value}}</span>
+</div>
+</sc-for>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 12px; font-weight: 500; color: #3F3F46;">面板地址模板</span>
+<input value="http://{ip}:{port}" style="height: 34px; box-sizing: border-box; padding: 0 10px; border-radius: 8px; border: 1px solid #E4E4E7; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 13px;"></label>
+<pre style="margin: 0; padding: 10px 12px; border-radius: 8px; background: #111114; color: #D4D4D8; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; line-height: 1.6;"><span style="color: #8B84FF;">- id:</span> fnos
+<span style="color: #8B84FF;">  ports:</span> [5666, 5667]
+<span style="color: #8B84FF;">  match:</span>
+    - title: "飞牛"
+    - header.server: "fnos"
+<span style="color: #8B84FF;">  url:</span> "http://{ip}:{port}"</pre>
+<div style="display: flex; gap: 8px;">
+<input placeholder="输入 IP 测试" style="flex-grow: 1; min-width: 0; height: 34px; box-sizing: border-box; padding: 0 10px; border-radius: 8px; border: 1px solid #E4E4E7; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px;">
+<button style="height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid #E4E4E7; background: #FFFFFF; font: inherit; font-size: 13px;">测试</button>
+<button style="height: 34px; padding: 0 14px; border-radius: 8px; border: 0; background: #4F46E5; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 500;">保存</button>
+</div>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+const I = {
+nas: 'M3 12h18M5 5h14l2 7v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6zM7 16h.01M11 16h.01',
+layers: 'M12 2l9 5-9 5-9-5zM3 12l9 5 9-5M3 17l9 5 9-5',
+router: 'M3 14h18v6H3zM7 17h.01M11 17h.01M12 14V9M8.5 7a5 5 0 0 1 7 0M6 4.5a8.5 8.5 0 0 1 12 0',
+film: 'M3 3h18v18H3zM7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4M3 12h18',
+home: 'M3 11l9-8 9 8M5 9.5V21h14V9.5',
+box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+download: 'M12 3v12M7 10l5 5 5-5M4 21h16',
+terminal: 'M4 17l6-6-6-6M12 19h8',
+folder: 'M3 6h6l2 2h10v11H3z',
+camera: 'M3 7h12v10H3zM15 11l6-3v8l-6-3'
+};
+const C = { nas: ['#E8EEFF', '#3A5BD9'], virt: ['#FFF3E0', '#B45309'], net: ['#E3F7F2', '#0F7B63'], media: ['#F1ECFF', '#6D4ED8'], ops: ['#F1F1F4', '#3F3F46'], iot: ['#FCEBF0', '#B4235A'] };
+const r = (name, ports, proto, match, icon, cat, custom, on, selected) => ({
+name, ports, proto, match, icon: I[icon], iconBg: C[cat][0], iconFg: C[cat][1],
+src: custom ? '自定义' : '内置', srcColor: custom ? '#4338CA' : '#71717A',
+on: on !== false ? 'true' : 'false', swBg: on !== false ? '#4F46E5' : '#D4D4D8', swJustify: on !== false ? 'flex-end' : 'flex-start',
+rowBg: selected ? '#F7F7FF' : '#FFFFFF'
+});
+const rules = [
+r('飞牛 fnOS', '5666, 5667', 'HTTP/S', 'title ~ "飞牛" | server ~ "fnos"', 'nas', 'nas', false, true, true),
+r('群晖 DSM', '5000, 5001', 'HTTP/S', 'title ~ "Synology"', 'nas', 'nas'),
+r('Proxmox VE', '8006', 'HTTPS', 'title ~ "Proxmox"', 'layers', 'virt'),
+r('VMware ESXi', '443', 'HTTPS', 'body ~ "VMware ESXi"', 'layers', 'virt'),
+r('OpenWrt LuCI', '80, 443', 'HTTP/S', 'body ~ "/cgi-bin/luci"', 'router', 'net'),
+r('Jellyfin', '8096, 8920', 'HTTP', 'title = "Jellyfin"', 'film', 'media'),
+r('Home Assistant', '8123', 'HTTP', 'title = "Home Assistant"', 'home', 'iot'),
+r('Portainer', '9000, 9443', 'HTTP/S', 'favicon.mmh3 = -1543127524', 'box', 'ops'),
+r('qBittorrent', '8080, 8085', 'HTTP', 'title ~ "qBittorrent"', 'download', 'media'),
+r('Alist', '5244', 'HTTP', 'title ~ "AList"', 'folder', 'media', true),
+r('SSH', '22, 2222', 'TCP', 'banner ^ "SSH-"', 'terminal', 'ops'),
+r('RTSP 摄像头', '554, 8554', 'TCP', 'banner ^ "RTSP/1.0"', 'camera', 'iot', false, false)
+];
+const cats = [['全部', 86, true], ['NAS 与存储', 12], ['虚拟化', 6], ['路由与网关', 9], ['影音', 11], ['下载', 7], ['运维监控', 14], ['智能家居', 6], ['打印与摄像', 8], ['基础服务', 13]].map(([name, count, on]) => ({
+name, count, bg: on ? '#EDEDF0' : 'transparent', fg: on ? '#18181B' : '#52525B', weight: on ? 500 : 400
+}));
+const conds = [
+{ field: '页面标题', op: '包含', value: '飞牛' },
+{ field: '响应头 Server', op: '包含', value: 'fnos' }
+];
+return { rules, cats, conds };
+}
+}
+</script>
+</body>
+</html>

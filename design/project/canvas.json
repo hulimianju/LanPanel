@@ -1,0 +1,26 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-09-22T14:40:00Z"},
+  "title": "LanPanel UI 设计稿",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 1000, "title": "面板首页 · 深色", "is_interactive": true},
+    "Mobile.dc.html": {"x": 1520, "y": 0, "w": 390, "h": 844, "title": "手机端面板", "is_interactive": true},
+    "Discovery.dc.html": {"x": 0, "y": 1420, "w": 1440, "h": 1000, "title": "设备发现 · 列表", "is_interactive": true},
+    "DeviceDetail.dc.html": {"x": 1520, "y": 1420, "w": 560, "h": 1120, "title": "设备详情抽屉", "is_interactive": true},
+    "Scan.dc.html": {"x": 0, "y": 2960, "w": 1440, "h": 1000, "title": "扫描任务", "is_interactive": true},
+    "Rules.dc.html": {"x": 1520, "y": 2960, "w": 1440, "h": 1000, "title": "端口规则", "is_interactive": true},
+    "Tokens.dc.html": {"x": 0, "y": 4380, "w": 1440, "h": 1360, "title": "设计规范"},
+    "Login.dc.html": {"x": 1520, "y": 4380, "w": 1440, "h": 900, "title": "登录", "is_interactive": true},
+    "Sidebar.dc.html": {"x": 3040, "y": 4380, "w": 232, "h": 1000, "title": "组件 · 侧边导航", "is_interactive": true}
+  },
+  "order": ["Main.dc.html", "Mobile.dc.html", "Discovery.dc.html", "DeviceDetail.dc.html", "Scan.dc.html", "Rules.dc.html", "Tokens.dc.html", "Login.dc.html", "Sidebar.dc.html"],
+  "notes": {
+    "t1": {"x": 0, "y": -300, "text": "面板", "kind": "title1", "maxW": 1910},
+    "t2": {"x": 0, "y": 1120, "text": "设备发现", "kind": "title1", "maxW": 2080},
+    "t3": {"x": 0, "y": 2660, "text": "扫描与规则", "kind": "title1", "maxW": 2960},
+    "t4": {"x": 0, "y": 4080, "text": "设计规范与组件", "kind": "title1", "maxW": 3272}
+  },
+  "designSystems": []
+}

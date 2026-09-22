@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>扫描任务</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;family=Noto+Sans+SC:wght@300;400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif;background:#F7F7F8;color:#18181B}
+a{color:#4338CA;text-decoration:none}a:hover{color:#3730A3}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1000px; display: flex; background: #F7F7F8; font-family: 'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif; color: #18181B;">
+<dc-import name="Sidebar" active="scan" hint-size="232px,1000px"></dc-import>
+
+<main style="flex-grow: 1; min-width: 0; padding: 28px 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px;">
+<div style="display: flex; align-items: flex-end; gap: 12px;">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;">
+<h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;">扫描任务</h1>
+<p style="margin: 0; font-size: 13px; color: #71717A;">主动探测会产生少量网络流量；在路由器上运行时会自动降低并发</p>
+</div>
+<button style="height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #E4E4E7; background: #FFFFFF; font: inherit; font-size: 13px; font-weight: 500; color: #B42318;">取消扫描</button>
+</div>
+
+<div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px;">
+<div style="display: flex; flex-direction: column; gap: 20px; min-width: 0;">
+<section style="padding: 20px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E8E8EC; display: flex; flex-direction: column; gap: 18px;">
+<div style="display: flex; align-items: baseline; gap: 12px;">
+<h2 style="margin: 0; flex-grow: 1; font-size: 16px; font-weight: 600;">正在扫描 <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-weight: 500;">192.168.1.0/24</span></h2>
+<span style="font-size: 13px; color: #71717A; font-variant-numeric: tabular-nums;">已用时 00:24 · 预计剩余 00:14</span>
+<span style="font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums;">64%</span>
+</div>
+<div style="height: 6px; border-radius: 3px; background: #EFEFF1; overflow: hidden;"><div style="width: 64%; height: 100%; border-radius: 3px; background: #4F46E5;"></div></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+<div style="padding: 12px; border-radius: 10px; border: 1px solid {{s.border}}; background: {{s.bg}}; display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 8px;">
+<span style="width: 20px; height: 20px; border-radius: 10px; background: {{s.badgeBg}}; color: {{s.badgeFg}}; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center;">{{s.mark}}</span>
+<span style="font-size: 13px; font-weight: 500;">{{s.title}}</span>
+</div>
+<span style="font-size: 12px; color: #52525B;">{{s.desc}}</span>
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11.5px; color: #71717A;">{{s.metric}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="flex-grow: 1; min-height: 0; border-radius: 12px; background: #111114; display: flex; flex-direction: column; overflow: hidden;">
+<div style="height: 40px; padding: 0 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #26262B;">
+<span style="width: 7px; height: 7px; border-radius: 4px; background: #3DD68C;"></span>
+<span style="flex-grow: 1; font-size: 13px; font-weight: 500; color: #EDEDEF;">实时日志</span>
+<span style="font-size: 12px; color: #8B8D98;">已发现 23 台 · 新 3 台 · 服务 31 个</span>
+</div>
+<div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 5px; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px;">
+<sc-for list="{{logs}}" as="l" hint-placeholder-count="12">
+<div style="display: grid; grid-template-columns: 70px 64px 150px minmax(0, 1fr); gap: 12px; color: #D4D4D8;">
+<span style="color: #6B6F7A;">{{l.t}}</span>
+<span style="color: {{l.color}};">{{l.kind}}</span>
+<span>{{l.target}}</span>
+<span style="color: #A1A1AA; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{l.msg}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+</div>
+
+<aside style="display: flex; flex-direction: column; gap: 16px;">
+<section style="padding: 18px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E8E8EC; display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-size: 14px; font-weight: 600;">扫描设置</h2>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 12px; font-weight: 500; color: #3F3F46;">网段</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px;">
+<span style="height: 28px; padding: 0 10px; border-radius: 7px; background: #F4F4F5; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; display: flex; align-items: center; gap: 6px;">192.168.1.0/24<span style="font-family: 'Geist','PingFang SC',sans-serif; color: #71717A;">br-lan · 自动</span></span>
+<span style="height: 28px; padding: 0 10px; border-radius: 7px; background: #F4F4F5; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; display: flex; align-items: center;">10.0.10.0/24</span>
+<button style="height: 28px; padding: 0 10px; border-radius: 7px; border: 1px dashed #D4D4D8; background: transparent; font: inherit; font-size: 12px; color: #52525B;">+ 添加</button>
+</div>
+</div>
+<label style="display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 12px; font-weight: 500; color: #3F3F46;">端口模板</span>
+<span style="height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #E4E4E7; display: flex; align-items: center; font-size: 13px;"><span style="flex-grow: 1;">常用服务 · 86 个端口</span>
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"></path></svg></span>
+</label>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 12px; font-weight: 500; color: #3F3F46;">发现协议</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+<sc-for list="{{protocols}}" as="p" hint-placeholder-count="6">
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+<span style="width: 16px; height: 16px; border-radius: 4px; box-sizing: border-box; border: 1px solid {{p.border}}; background: {{p.bg}}; display: flex; align-items: center; justify-content: center;">
+<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg></span>
+{{p.name}}</label>
+</sc-for>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+<label style="display: flex; flex-direction: column; gap: 8px;"><span style="font-size: 12px; font-weight: 500; color: #3F3F46;">并发数</span>
+<input value="128" style="height: 36px; box-sizing: border-box; padding: 0 12px; border-radius: 8px; border: 1px solid #E4E4E7; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 13px;"></label>
+<label style="display: flex; flex-direction: column; gap: 8px;"><span style="font-size: 12px; font-weight: 500; color: #3F3F46;">超时（毫秒）</span>
+<input value="800" style="height: 36px; box-sizing: border-box; padding: 0 12px; border-radius: 8px; border: 1px solid #E4E4E7; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 13px;"></label>
+</div>
+<div style="height: 1px; background: #EEEEF1;"></div>
+<sc-for list="{{toggles}}" as="t" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 12px;">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 13px; font-weight: 500;">{{t.title}}</span>
+<span style="font-size: 12px; color: #71717A;">{{t.desc}}</span>
+</div>
+<span role="switch" aria-checked="true" aria-label="{{t.title}}" style="width: 36px; height: 20px; flex: none; border-radius: 10px; background: #4F46E5; display: flex; align-items: center; justify-content: flex-end; padding: 2px; box-sizing: border-box;"><span style="width: 16px; height: 16px; border-radius: 8px; background: #FFFFFF;"></span></span>
+</div>
+</sc-for>
+</section>
+
+<section style="padding: 18px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E8E8EC; display: flex; flex-direction: column; gap: 10px;">
+<h2 style="margin: 0; font-size: 14px; font-weight: 600;">最近扫描</h2>
+<sc-for list="{{history}}" as="h" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 10px; font-size: 12px;">
+<span style="width: 7px; height: 7px; border-radius: 4px; background: {{h.dot}};"></span>
+<span style="width: 78px; font-family: 'Geist Mono', ui-monospace, monospace; color: #3F3F46;">{{h.time}}</span>
+<span style="width: 36px; color: #71717A;">{{h.trigger}}</span>
+<span style="flex-grow: 1; color: #3F3F46;">{{h.result}}</span>
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; color: #71717A;">{{h.dur}}</span>
+</div>
+</sc-for>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+const st = (title, desc, metric, state) => {
+const done = state === 'done', run = state === 'run';
+return {
+title, desc, metric,
+mark: done ? '✓' : run ? '…' : '–',
+badgeBg: done ? '#E6F6EE' : run ? '#4F46E5' : '#EFEFF1',
+badgeFg: done ? '#11794B' : run ? '#FFFFFF' : '#71717A',
+border: run ? '#C7C9FF' : '#EEEEF1',
+bg: run ? '#F7F7FF' : '#FFFFFF'
+};
+};
+const steps = [
+st('主机发现', 'ARP 扫描 + ICMP', '254 / 254 · 23 台在线', 'done'),
+st('协议广播', 'mDNS · SSDP · NetBIOS', '41 条应答 · 17 台', 'done'),
+st('端口扫描', '86 个端口 × 23 台', '1,268 / 1,978 探测', 'run'),
+st('指纹识别', 'HTTP 标题 / 响应头 / 图标', '等待中', 'wait')
+];
+const K = { ARP: '#8FA8FF', mDNS: '#B4A1FF', SSDP: '#5ED3BA', PORT: '#F2BD62', HTTP: '#7BD88F', NBNS: '#F79AAB' };
+const log = (t, kind, target, msg) => ({ t, kind, target, msg, color: K[kind] });
+const logs = [
+log('14:31:41', 'ARP', '192.168.1.1', '60:BE:B4:02:7A:10  Intel Corporate'),
+log('14:31:41', 'ARP', '192.168.1.23', '3C:7C:3F:A1:22:9E  ASUSTek Computer'),
+log('14:31:42', 'mDNS', 'fnos-home.local', '_http._tcp  port=5666  _smb._tcp  port=445'),
+log('14:31:42', 'mDNS', 'DS920.local', '_http._tcp  vendor=Synology  model=DS920+'),
+log('14:31:43', 'SSDP', '192.168.1.20', 'Synology DS920+  presentationURL=http://192.168.1.20:5000/'),
+log('14:31:43', 'mDNS', 'MacBook-Pro.local', '_device-info._tcp  model=MacBookPro18,3'),
+log('14:31:44', 'SSDP', '192.168.1.66', 'MiTV-AXFR0  urn:schemas-upnp-org:device:MediaRenderer:1'),
+log('14:31:45', 'NBNS', '192.168.1.88', 'DESKTOP-7H2K  <WORKGROUP>'),
+log('14:31:52', 'PORT', '192.168.1.23:8096', 'open  12ms'),
+log('14:31:52', 'HTTP', '192.168.1.23:8096', 'title="Jellyfin"  → 规则 jellyfin'),
+log('14:31:55', 'PORT', '192.168.1.10:8006', 'open  9ms  tls'),
+log('14:31:56', 'HTTP', '192.168.1.10:8006', 'title="pve - Proxmox Virtual Environment"  → 规则 pve'),
+log('14:31:58', 'PORT', '192.168.1.70:554', 'open  21ms  RTSP/1.0 200 OK'),
+log('14:32:03', 'HTTP', '192.168.1.23:2283', 'title="Immich"  → 规则 immich')
+];
+const protocols = [['ARP', 1], ['ICMP', 1], ['mDNS', 1], ['SSDP / UPnP', 1], ['NetBIOS', 1], ['WS-Discovery', 0]].map(([name, on]) => ({
+name, bg: on ? '#4F46E5' : '#FFFFFF', border: on ? '#4F46E5' : '#D4D4D8'
+}));
+const toggles = [
+{ title: '定时扫描', desc: '每 30 分钟 · 仅主机发现与协议广播每 5 分钟' },
+{ title: '新设备提醒', desc: '面板顶部提示，可选 Webhook 推送' }
+];
+const history = [
+{ time: '14:00:12', trigger: '定时', result: '23 台在线 · 新 1', dur: '41s', dot: '#22A06B' },
+{ time: '13:30:08', trigger: '定时', result: '22 台在线 · IP 变化 1', dur: '39s', dot: '#E5A000' },
+{ time: '13:02:45', trigger: '手动', result: '22 台在线', dur: '44s', dot: '#22A06B' },
+{ time: '12:30:10', trigger: '定时', result: '21 台在线', dur: '38s', dot: '#22A06B' }
+];
+return { steps, logs, protocols, toggles, history };
+}
+}
+</script>
+</body>
+</html>

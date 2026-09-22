@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>设备详情</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;family=Noto+Sans+SC:wght@300;400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif;background:#FFFFFF;color:#18181B}
+a{color:#4338CA;text-decoration:none}a:hover{color:#3730A3}
+</style>
+</helmet>
+<aside aria-label="设备详情" style="width: 560px; height: 1120px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFFFFF; border-left: 1px solid #E8E8EC; font-family: 'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif; color: #18181B;">
+<div style="padding: 20px 24px 18px; display: flex; flex-direction: column; gap: 16px; border-bottom: 1px solid #EEEEF1;">
+<div style="display: flex; align-items: flex-start; gap: 14px;">
+<div style="width: 48px; height: 48px; flex: none; border-radius: 12px; background: #E8EEFF; display: flex; align-items: center; justify-content: center;">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3A5BD9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M5 5h14l2 7v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6zM7 16h.01M11 16h.01"></path></svg>
+</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px;">
+<h2 style="margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em;">客厅 NAS</h2>
+<div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+<span style="height: 22px; padding: 0 8px; border-radius: 6px; background: #E6F6EE; color: #11794B; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px;"><span style="width: 6px; height: 6px; border-radius: 3px; background: #22A06B;"></span>在线</span>
+<span style="height: 22px; padding: 0 8px; border-radius: 6px; background: #FFF4E0; color: #A35200; font-size: 12px; font-weight: 500; display: flex; align-items: center;">IP 已变化</span>
+<span style="font-size: 12px; color: #71717A;">飞牛 fnOS · fnos-home.local</span>
+</div>
+</div>
+<a href="Discovery.dc.html" aria-label="关闭" style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+</a>
+</div>
+<div style="display: flex; gap: 8px;">
+<a href="#" style="height: 34px; padding: 0 14px; border-radius: 8px; background: #4F46E5; color: #FFFFFF; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7M21 3l-9 9M19 14v7H3V5h7"></path></svg>打开管理页</a>
+<button style="height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid #E4E4E7; background: #FFFFFF; font: inherit; font-size: 13px; font-weight: 500; color: #18181B;">编辑名称与类型</button>
+<button aria-label="更多操作" style="width: 34px; height: 34px; border-radius: 8px; border: 1px solid #E4E4E7; background: #FFFFFF; display: flex; align-items: center; justify-content: center;">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="3" stroke-linecap="round"><path d="M5 12h.01M12 12h.01M19 12h.01"></path></svg>
+</button>
+</div>
+</div>
+
+<div style="flex-grow: 1; min-height: 0; padding: 20px 24px; display: flex; flex-direction: column; gap: 24px;">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px;">
+<sc-for list="{{kv}}" as="k" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 3px;">
+<span style="font-size: 12px; color: #71717A;">{{k.k}}</span>
+<span style="font-size: 13px; font-family: {{k.font}};">{{k.v}}</span>
+</div>
+</sc-for>
+</div>
+
+<section style="display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: center;">
+<h3 style="margin: 0; flex-grow: 1; font-size: 13px; font-weight: 600;">服务 <span style="color: #71717A; font-weight: 400;">7</span></h3>
+<span style="font-size: 12px; color: #71717A;">4 项已在面板</span>
+</div>
+<div style="border: 1px solid #EEEEF1; border-radius: 10px; overflow: hidden;">
+<sc-for list="{{services}}" as="s" hint-placeholder-count="6">
+<div style="height: 48px; padding: 0 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #F3F3F5;">
+<div style="width: 150px; display: flex; flex-direction: column; gap: 1px;">
+<span style="font-size: 13px; font-weight: 500;">{{s.name}}</span>
+<span style="font-size: 11px; color: #71717A;">{{s.by}}</span>
+</div>
+<span style="flex-grow: 1; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #3F3F46; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{s.url}}</span>
+<sc-if value="{{s.inPanel}}" hint-placeholder-val="{{true}}">
+<span style="height: 26px; padding: 0 8px; font-size: 12px; color: #11794B; display: flex; align-items: center; gap: 4px;">
+<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#11794B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>已在面板</span>
+</sc-if>
+<sc-if value="{{s.canAdd}}" hint-placeholder-val="{{false}}">
+<button style="height: 26px; padding: 0 10px; border-radius: 6px; border: 1px solid #D9DBFF; background: #F4F5FF; color: #4338CA; font: inherit; font-size: 12px; font-weight: 500;">加入面板</button>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="padding: 14px; border-radius: 10px; background: #F7F7FF; border: 1px solid #E3E4FF; display: flex; align-items: center; gap: 12px;">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 13px; font-weight: 500;">IP 自动跟随</span>
+<span style="font-size: 12px; color: #52525B;">4 张面板卡片按 MAC 绑定此设备，IP 变化后自动改写地址</span>
+</div>
+<span role="switch" aria-checked="true" aria-label="IP 自动跟随" style="width: 36px; height: 20px; flex: none; border-radius: 10px; background: #4F46E5; display: flex; align-items: center; justify-content: flex-end; padding: 2px; box-sizing: border-box;"><span style="width: 16px; height: 16px; border-radius: 8px; background: #FFFFFF;"></span></span>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 10px;">
+<h3 style="margin: 0; font-size: 13px; font-weight: 600;">IP 历史</h3>
+<div style="display: flex; flex-direction: column;">
+<sc-for list="{{history}}" as="h" hint-placeholder-count="3">
+<div style="display: flex; gap: 12px;">
+<div style="width: 12px; display: flex; flex-direction: column; align-items: center;">
+<span style="width: 9px; height: 9px; margin-top: 4px; border-radius: 5px; box-sizing: border-box; background: {{h.dotBg}}; border: 2px solid {{h.dotBorder}};"></span>
+<span style="flex-grow: 1; width: 1px; background: #E4E4E7; opacity: {{h.lineOpacity}};"></span>
+</div>
+<div style="flex-grow: 1; padding-bottom: 14px; display: flex; align-items: baseline; gap: 10px;">
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 13px; font-weight: {{h.weight}};">{{h.ip}}</span>
+<span style="font-size: 12px; color: #71717A;">{{h.range}}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px;">
+<h3 style="margin: 0; font-size: 13px; font-weight: 600;">原始发现数据</h3>
+<pre style="margin: 0; padding: 12px 14px; border-radius: 10px; background: #111114; color: #D4D4D8; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11.5px; line-height: 1.7; white-space: pre-wrap;"><span style="color: #8B84FF;">mDNS </span> fnos-home._http._tcp.local  port=5666  path=/
+<span style="color: #8B84FF;">ARP  </span> 192.168.1.23 → 3C:7C:3F:A1:22:9E  (ASUSTek)
+<span style="color: #8B84FF;">HTTP </span> :5666  title="飞牛私有云 fnOS"  规则=fnos
+<span style="color: #8B84FF;">HTTP </span> :8096  title="Jellyfin"  server=Kestrel</pre>
+</section>
+</div>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":560,"height":1120}}'>
+class Component extends DCLogic {
+renderVals() {
+const mono = "'Geist Mono', ui-monospace, monospace";
+const sans = "inherit";
+const kv = [
+{ k: 'IP 地址', v: '192.168.1.23', font: mono },
+{ k: 'MAC 地址', v: '3C:7C:3F:A1:22:9E', font: mono },
+{ k: '厂商', v: 'ASUSTek Computer', font: sans },
+{ k: '系统', v: '飞牛 fnOS（HTTP 指纹）', font: sans },
+{ k: '首次发现', v: '2026-08-03 21:14', font: mono },
+{ k: '最近在线', v: '刚刚 · 14:31:52', font: sans }
+];
+const s = (name, by, url, state) => ({ name, by, url, inPanel: state === 'in', canAdd: state === 'add' });
+const services = [
+s('飞牛 fnOS', '规则 fnos · 标题匹配', 'http://192.168.1.23:5666', 'in'),
+s('Jellyfin', '规则 jellyfin', 'http://192.168.1.23:8096', 'in'),
+s('Immich', '规则 immich', 'http://192.168.1.23:2283', 'in'),
+s('qBittorrent', '规则 qbittorrent', 'http://192.168.1.23:8085', 'in'),
+s('Alist', '规则 alist', 'http://192.168.1.23:5244', 'add'),
+s('SMB 共享', '端口 445', 'smb://192.168.1.23', 'none'),
+s('SSH', 'banner OpenSSH_9.2', 'ssh://192.168.1.23:22', 'none')
+];
+const history = [
+{ ip: '192.168.1.23', range: '当前 · 自 9月20日 08:12', dotBg: '#4F46E5', dotBorder: '#4F46E5', weight: 600, lineOpacity: 1 },
+{ ip: '192.168.1.105', range: '9月12日 – 9月20日', dotBg: '#FFFFFF', dotBorder: '#A1A1AA', weight: 400, lineOpacity: 1 },
+{ ip: '192.168.1.87', range: '8月3日 – 9月12日', dotBg: '#FFFFFF', dotBorder: '#A1A1AA', weight: 400, lineOpacity: 0 }
+];
+return { kv, services, history };
+}
+}
+</script>
+</body>
+</html>

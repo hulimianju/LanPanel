@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>设备发现</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;family=Noto+Sans+SC:wght@300;400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif;background:#F7F7F8;color:#18181B}
+a{color:#4338CA;text-decoration:none}a:hover{color:#3730A3}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1000px; display: flex; background: #F7F7F8; font-family: 'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif; color: #18181B;">
+<dc-import name="Sidebar" active="discovery" hint-size="232px,1000px"></dc-import>
+
+<main style="flex-grow: 1; min-width: 0; padding: 28px 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px;">
+<div style="display: flex; align-items: flex-end; gap: 12px;">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;">
+<h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;">设备发现</h1>
+<p style="margin: 0; font-size: 13px; color: #71717A;"><span style="font-family: 'Geist Mono', ui-monospace, monospace;">192.168.1.0/24</span> · 上次扫描 12 分钟前，耗时 38 秒 · 下次 18 分钟后</p>
+</div>
+<a href="Rules.dc.html" style="height: 36px; padding: 0 14px; box-sizing: border-box; border-radius: 8px; border: 1px solid #E4E4E7; background: #FFFFFF; color: #18181B; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>端口规则</a>
+<a href="Scan.dc.html" style="height: 36px; padding: 0 14px; box-sizing: border-box; border-radius: 8px; background: #4F46E5; color: #FFFFFF; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"></path></svg>立即扫描</a>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+<sc-for list="{{stats}}" as="s" hint-placeholder-count="4">
+<div style="padding: 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E8E8EC; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 12px; color: #71717A;">{{s.label}}</span>
+<div style="display: flex; align-items: baseline; gap: 8px;">
+<span style="font-size: 26px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;">{{s.value}}</span>
+<span style="font-size: 12px; color: {{s.noteColor}};">{{s.note}}</span>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display: flex; align-items: center; gap: 12px;">
+<label style="width: 280px; height: 36px; box-sizing: border-box; padding: 0 12px; border-radius: 8px; border: 1px solid #E4E4E7; background: #FFFFFF; display: flex; align-items: center; gap: 8px;">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="1.8" stroke-linecap="round"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM21 21l-5-5"></path></svg>
+<input placeholder="搜索名称、IP、MAC、厂商" style="flex-grow: 1; border: 0; outline: none; background: transparent; font: inherit; font-size: 13px; color: #18181B;">
+</label>
+<div role="group" aria-label="设备类型" style="display: flex; gap: 4px; padding: 3px; border-radius: 9px; background: #EFEFF1;">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="7">
+<button style="height: 28px; padding: 0 10px; border: 0; border-radius: 6px; font: inherit; font-size: 12px; display: flex; align-items: center; gap: 6px; background: {{f.bg}}; color: {{f.fg}}; font-weight: {{f.weight}};">{{f.label}}<span style="color: #71717A; font-variant-numeric: tabular-nums;">{{f.count}}</span></button>
+</sc-for>
+</div>
+<div style="flex-grow: 1;"></div>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #3F3F46;">
+<span style="width: 32px; height: 18px; border-radius: 9px; background: #4F46E5; display: flex; align-items: center; justify-content: flex-end; padding: 2px; box-sizing: border-box;"><span style="width: 14px; height: 14px; border-radius: 7px; background: #FFFFFF;"></span></span>仅在线
+</label>
+<div role="group" aria-label="视图" style="display: flex; padding: 3px; border-radius: 9px; background: #EFEFF1;">
+<button aria-label="列表视图" style="width: 30px; height: 28px; border: 0; border-radius: 6px; background: #FFFFFF; display: flex; align-items: center; justify-content: center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#18181B" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg></button>
+<button aria-label="卡片视图" style="width: 30px; height: 28px; border: 0; border-radius: 6px; background: transparent; display: flex; align-items: center; justify-content: center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="1.8" stroke-linejoin="round"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"></path></svg></button>
+</div>
+</div>
+
+<div style="flex-grow: 1; min-height: 0; border-radius: 12px; background: #FFFFFF; border: 1px solid #E8E8EC; overflow: hidden; display: flex; flex-direction: column;">
+<div style="height: 38px; padding: 0 16px; display: grid; grid-template-columns: 250px 150px 190px 150px minmax(0, 1fr) 96px 28px; gap: 16px; align-items: center; background: #FAFAFB; border-bottom: 1px solid #EEEEF1; font-size: 12px; font-weight: 500; color: #71717A;">
+<span>设备</span><span>IP 地址</span><span>MAC / 厂商</span><span>发现来源</span><span>服务</span><span>最近在线</span><span></span>
+</div>
+<sc-for list="{{devices}}" as="d" hint-placeholder-count="10">
+<a href="DeviceDetail.dc.html" style="height: 58px; padding: 0 16px; display: grid; grid-template-columns: 250px 150px 190px 150px minmax(0, 1fr) 96px 28px; gap: 16px; align-items: center; border-bottom: 1px solid #F1F1F3; background: {{d.rowBg}}; color: #18181B;">
+<div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+<div style="width: 34px; height: 34px; flex: none; border-radius: 9px; background: {{d.iconBg}}; display: flex; align-items: center; justify-content: center;">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{d.iconFg}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{d.icon}}"></path></svg>
+</div>
+<div style="min-width: 0; display: flex; flex-direction: column; gap: 2px;">
+<div style="display: flex; align-items: center; gap: 6px;">
+<span style="font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{d.name}}</span>
+<sc-if value="{{d.isNew}}" hint-placeholder-val="{{false}}"><span style="height: 18px; padding: 0 6px; border-radius: 5px; background: #EEF0FF; color: #4338CA; font-size: 11px; font-weight: 600; display: flex; align-items: center;">新</span></sc-if>
+</div>
+<span style="font-size: 12px; color: #71717A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{d.sub}}</span>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 3px;">
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 13px;">{{d.ip}}</span>
+<sc-if value="{{d.changed}}" hint-placeholder-val="{{false}}"><span style="align-self: flex-start; font-size: 11px; color: #A35200;">IP 已变化 · 原 {{d.oldIp}}</span></sc-if>
+</div>
+<div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #3F3F46;">{{d.mac}}</span>
+<span style="font-size: 12px; color: #71717A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{d.vendor}}</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 4px;">
+<sc-for list="{{d.sources}}" as="src" hint-placeholder-count="2">
+<span style="height: 20px; padding: 0 6px; border-radius: 5px; border: 1px solid #E4E4E7; background: #FAFAFB; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #52525B; display: flex; align-items: center;">{{src}}</span>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; min-width: 0;">
+<sc-for list="{{d.services}}" as="sv" hint-placeholder-count="3">
+<span style="height: 24px; padding: 0 8px; border-radius: 6px; background: {{sv.bg}}; color: {{sv.fg}}; font-size: 12px; display: flex; align-items: center; gap: 4px; white-space: nowrap;">{{sv.name}}<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; opacity: 0.75;">{{sv.port}}</span></span>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #52525B;">
+<span style="width: 7px; height: 7px; border-radius: 4px; background: {{d.dot}};"></span>{{d.seen}}
+</div>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A1A1AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+</a>
+</sc-for>
+<div style="flex-grow: 1;"></div>
+<div style="height: 44px; padding: 0 16px; display: flex; align-items: center; border-top: 1px solid #EEEEF1; font-size: 12px; color: #71717A;">
+<span style="flex-grow: 1;">显示 10 / 31 台设备</span>
+<span>MAC 厂商库 2026-09 · 规则 86 条</span>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+const I = {
+nas: 'M3 12h18M5 5h14l2 7v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6zM7 16h.01M11 16h.01',
+layers: 'M12 2l9 5-9 5-9-5zM3 12l9 5 9-5M3 17l9 5 9-5',
+router: 'M3 14h18v6H3zM7 17h.01M11 17h.01M12 14V9M8.5 7a5 5 0 0 1 7 0M6 4.5a8.5 8.5 0 0 1 12 0',
+laptop: 'M5 5h14v10H5zM2 19h20',
+phone: 'M7 2h10v20H7zM11 18h2',
+tv: 'M2 7h20v13H2zM7 2l5 5 5-5',
+printer: 'M6 9V2h12v7M6 18H4v-7h16v7h-2M6 14h12v8H6z',
+camera: 'M3 7h12v10H3zM15 11l6-3v8l-6-3',
+monitor: 'M3 4h18v12H3zM8 20h8M12 16v4'
+};
+const C = {
+nas: ['#E8EEFF', '#3A5BD9'], virt: ['#FFF3E0', '#B45309'], net: ['#E3F7F2', '#0F7B63'],
+pc: ['#F1F1F4', '#3F3F46'], iot: ['#FCEBF0', '#B4235A'], print: ['#F1F1F4', '#3F3F46']
+};
+const web = ['#EEF0FF', '#4338CA'], tcp = ['#F1F1F4', '#52525B'];
+const sv = (name, port, isWeb) => ({ name, port: ':' + port, bg: (isWeb ? web : tcp)[0], fg: (isWeb ? web : tcp)[1] });
+const dev = (o) => ({
+changed: false, isNew: false, oldIp: '', online: true, ...o,
+icon: I[o.icon], iconBg: C[o.cat][0], iconFg: C[o.cat][1],
+dot: o.online === false ? '#A1A1AA' : '#22A06B',
+rowBg: o.selected ? '#F7F7FF' : '#FFFFFF'
+});
+const devices = [
+dev({ name: '客厅 NAS', sub: '飞牛 fnOS · fnos-home', icon: 'nas', cat: 'nas', ip: '192.168.1.23', changed: true, oldIp: '.105', mac: '3C:7C:3F:A1:22:9E', vendor: 'ASUSTek Computer', sources: ['mDNS', 'ARP'], services: [sv('fnOS', 5666, true), sv('Jellyfin', 8096, true), sv('SMB', 445), sv('+4', '')].map(s => s.name === '+4' ? { ...s, port: '' } : s), seen: '刚刚', selected: true }),
+dev({ name: 'DS920+', sub: '群晖 DSM 7.2 · DiskStation', icon: 'nas', cat: 'nas', ip: '192.168.1.20', mac: '00:11:32:6B:4C:01', vendor: 'Synology Incorporated', sources: ['mDNS', 'SSDP'], services: [sv('DSM', 5000, true), sv('DSM', 5001, true), sv('SMB', 445)], seen: '刚刚' }),
+dev({ name: 'pve', sub: 'Proxmox VE 8.2', icon: 'layers', cat: 'virt', ip: '192.168.1.10', mac: 'A8:A1:59:0E:31:C4', vendor: 'ASRock Incorporation', sources: ['ARP', 'HTTP'], services: [sv('PVE', 8006, true), sv('Portainer', 9443, true), sv('SSH', 22)], seen: '刚刚' }),
+dev({ name: 'OpenWrt 主路由', sub: '网关 · 本机', icon: 'router', cat: 'net', ip: '192.168.1.1', mac: '60:BE:B4:02:7A:10', vendor: 'Intel Corporate', sources: ['DHCP', 'SSDP'], services: [sv('LuCI', 80, true), sv('AdGuard', 3000, true), sv('SSH', 22)], seen: '刚刚' }),
+dev({ name: 'MacBook Pro', sub: 'Apple · MacBookPro18,3', icon: 'laptop', cat: 'pc', ip: '192.168.1.105', mac: '私有地址 · 随机', vendor: 'Apple（mDNS 识别）', sources: ['mDNS'], services: [sv('AirPlay', 7000), sv('SSH', 22)], seen: '3 分钟前', isNew: true }),
+dev({ name: 'iPhone 15', sub: 'Apple · iPhone15,4', icon: 'phone', cat: 'pc', ip: '192.168.1.118', mac: '私有地址 · 随机', vendor: 'Apple（mDNS 识别）', sources: ['mDNS', 'DHCP'], services: [], seen: '5 分钟前', isNew: true }),
+dev({ name: '客厅电视', sub: 'Xiaomi TV · MiTV-AXFR0', icon: 'tv', cat: 'iot', ip: '192.168.1.66', mac: '64:CC:2E:18:9B:77', vendor: 'Xiaomi Communications', sources: ['SSDP', 'mDNS'], services: [sv('DLNA', 49152), sv('Cast', 8009)], seen: '刚刚' }),
+dev({ name: 'HP LaserJet M227', sub: '打印机 · NPI3F2A1B', icon: 'printer', cat: 'print', ip: '192.168.1.60', mac: 'A0:8C:FD:3F:2A:1B', vendor: 'HP Inc.', sources: ['mDNS'], services: [sv('网页', 80, true), sv('IPP', 631), sv('RAW', 9100)], seen: '8 分钟前' }),
+dev({ name: '门口摄像头', sub: 'ONVIF · DS-2CD1343', icon: 'camera', cat: 'iot', ip: '192.168.1.70', mac: 'BC:AD:28:44:0C:9E', vendor: 'Hangzhou Hikvision', sources: ['ARP', 'WSD'], services: [sv('网页', 80, true), sv('RTSP', 554)], seen: '刚刚', isNew: true }),
+dev({ name: 'DESKTOP-7H2K', sub: 'Windows · WORKGROUP', icon: 'monitor', cat: 'pc', ip: '192.168.1.88', mac: 'D8:BB:C1:5A:03:E2', vendor: 'Micro-Star International', sources: ['NetBIOS', 'ARP'], services: [sv('RDP', 3389), sv('SMB', 445)], seen: '2 天前', online: false })
+];
+const stats = [
+{ label: '在线设备', value: '23', note: '共 31 台已知', noteColor: '#71717A' },
+{ label: '新设备（24 小时）', value: '3', note: '待确认', noteColor: '#4338CA' },
+{ label: 'Web 服务', value: '31', note: '来自 14 台设备', noteColor: '#71717A' },
+{ label: 'IP 变化（7 天）', value: '5', note: '已自动更新 4 张卡片', noteColor: '#0F7B63' }
+];
+const filters = [['全部', 31, true], ['NAS', 4], ['路由', 2], ['电脑', 6], ['手机', 7], ['智能家居', 8], ['其他', 4]].map(([label, count, on]) => ({
+label, count, bg: on ? '#FFFFFF' : 'transparent', fg: on ? '#18181B' : '#52525B', weight: on ? 500 : 400
+}));
+return { devices, stats, filters };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+/*
+ * LanPanel 全局样式
+ *
+ * 两套相互独立的变量：
+ * 1. 界面主题 html[data-theme=light|dark]：管理页面、弹窗、表单使用（--bg / --fg / --surface ...）
+ * 2. 面板表面 .lp-surface[data-tone=light|dark][data-wp=image|plain]：面板首页叠在壁纸之上的
+ *    文字与毛玻璃卡片使用（--s-*）。色调由壁纸亮度决定，与界面主题无关——
+ *    浅色主题下也可以是深色壁纸，反之亦然。
+ */
+@import "tailwindcss";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme inline {
+  --font-sans: "Geist Variable", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-hover: var(--surface-hover);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-fg: var(--accent-soft-fg);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-fg: var(--success-fg);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-fg: var(--warning-fg);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-fg: var(--danger-fg);
+
+  /* 面板表面 */
+  --color-s-fg: var(--s-fg);
+  --color-s-fg-2: var(--s-fg-2);
+  --color-s-fg-3: var(--s-fg-3);
+  --color-s-glass: var(--s-glass);
+  --color-s-glass-hover: var(--s-glass-hover);
+  --color-s-glass-strong: var(--s-glass-strong);
+  --color-s-border: var(--s-border);
+  --color-s-divider: var(--s-divider);
+  --color-s-chip: var(--s-chip);
+  --color-s-chip-fg: var(--s-chip-fg);
+  --color-s-chip-border: var(--s-chip-border);
+
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-pop: var(--shadow-pop);
+}
+
+/* ---------- 界面主题 ---------- */
+:root,
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #F7F7F8;
+  --bg-subtle: #FAFAFB;
+  --surface: #FFFFFF;
+  --surface-2: #F4F4F5;
+  --surface-hover: #F4F4F6;
+  --border: #E8E8EC;
+  --border-strong: #D4D4D8;
+  --fg: #18181B;
+  --fg-2: #52525B;
+  --fg-3: #71717A;
+  --accent: #4F46E5;
+  --accent-hover: #4338CA;
+  --accent-fg: #FFFFFF;
+  --accent-soft: #EEF0FF;
+  --accent-soft-fg: #4338CA;
+  --success: #22A06B;
+  --success-soft: #E6F6EE;
+  --success-fg: #11794B;
+  --warning: #E5A000;
+  --warning-soft: #FFF4E0;
+  --warning-fg: #A35200;
+  --danger: #D92D20;
+  --danger-soft: #FEECEB;
+  --danger-fg: #B42318;
+  --overlay: rgba(9, 9, 11, 0.45);
+  --shadow-pop: 0 12px 32px rgba(24, 24, 27, 0.12), 0 2px 6px rgba(24, 24, 27, 0.06);
+  --focus: rgba(79, 70, 229, 0.28);
+}
+
+[data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0E0F12;
+  --bg-subtle: #121317;
+  --surface: #16171B;
+  --surface-2: #1E1F24;
+  --surface-hover: #1C1D22;
+  --border: #26272D;
+  --border-strong: #34353C;
+  --fg: #EDEDEF;
+  --fg-2: #B4B4BC;
+  --fg-3: #8B8D98;
+  --accent: #5B54E8;
+  --accent-hover: #6D66F0;
+  --accent-fg: #FFFFFF;
+  --accent-soft: rgba(109, 102, 240, 0.16);
+  --accent-soft-fg: #B9B4FF;
+  --success: #3DD68C;
+  --success-soft: rgba(61, 214, 140, 0.14);
+  --success-fg: #6EE7A8;
+  --warning: #F5B83D;
+  --warning-soft: rgba(245, 184, 61, 0.14);
+  --warning-fg: #F7C766;
+  --danger: #F2555A;
+  --danger-soft: rgba(242, 85, 90, 0.14);
+  --danger-fg: #FF8589;
+  --overlay: rgba(0, 0, 0, 0.6);
+  --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --focus: rgba(129, 120, 255, 0.4);
+}
+
+/* ---------- 面板表面：4 种组合（色调 × 是否有图片壁纸）---------- */
+.lp-surface {
+  --s-blur: 18px;
+  color: var(--s-fg);
+}
+
+/* 深色调 · 纯色/无壁纸：接近设计稿的点阵深色 */
+.lp-surface[data-tone=dark] {
+  color-scheme: dark;
+  --s-fg: #EDEDEF;
+  --s-fg-2: #A1A1AA;
+  --s-fg-3: #8B8D98;
+  --s-glass: rgba(255, 255, 255, 0.045);
+  --s-glass-hover: rgba(255, 255, 255, 0.085);
+  --s-glass-strong: rgba(255, 255, 255, 0.07);
+  --s-border: rgba(255, 255, 255, 0.08);
+  --s-divider: rgba(255, 255, 255, 0.07);
+  --s-chip: rgba(79, 70, 229, 0.18);
+  --s-chip-border: rgba(129, 120, 255, 0.38);
+  --s-chip-fg: #C7C4FF;
+  --s-dots: rgba(255, 255, 255, 0.07);
+  --s-base: #0A0B0E;
+  --s-text-shadow: none;
+  --s-card-shadow: none;
+}
+
+/* 浅色调 · 纯色/无壁纸 */
+.lp-surface[data-tone=light] {
+  color-scheme: light;
+  --s-fg: #18181B;
+  --s-fg-2: #52525B;
+  --s-fg-3: #71717A;
+  --s-glass: #FFFFFF;
+  --s-glass-hover: #FAFAFB;
+  --s-glass-strong: #FFFFFF;
+  --s-border: #E6E6EA;
+  --s-divider: #E6E6EA;
+  --s-chip: #EEF0FF;
+  --s-chip-border: #D9DBFF;
+  --s-chip-fg: #4338CA;
+  --s-dots: rgba(24, 24, 27, 0.07);
+  --s-base: #F4F4F6;
+  --s-text-shadow: none;
+  --s-card-shadow: 0 1px 2px rgba(24, 24, 27, 0.04);
+}
+
+/* 深色调 · 图片壁纸：卡片需要自带暗色底才能在任意图片上保证对比度 */
+.lp-surface[data-tone=dark][data-wp=image] {
+  --s-fg: #F7F7F8;
+  --s-fg-2: rgba(247, 247, 248, 0.78);
+  --s-fg-3: rgba(247, 247, 248, 0.64);
+  --s-glass: rgba(18, 18, 22, 0.42);
+  --s-glass-hover: rgba(18, 18, 22, 0.56);
+  --s-glass-strong: rgba(18, 18, 22, 0.5);
+  --s-border: rgba(255, 255, 255, 0.14);
+  --s-divider: rgba(255, 255, 255, 0.16);
+  --s-chip: rgba(79, 70, 229, 0.42);
+  --s-chip-border: rgba(165, 160, 255, 0.5);
+  --s-chip-fg: #FFFFFF;
+  --s-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 16px rgba(0, 0, 0, 0.35);
+  --s-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* 浅色调 · 图片壁纸 */
+.lp-surface[data-tone=light][data-wp=image] {
+  --s-fg: #111113;
+  --s-fg-2: rgba(17, 17, 19, 0.74);
+  --s-fg-3: rgba(17, 17, 19, 0.6);
+  --s-glass: rgba(255, 255, 255, 0.58);
+  --s-glass-hover: rgba(255, 255, 255, 0.72);
+  --s-glass-strong: rgba(255, 255, 255, 0.66);
+  --s-border: rgba(255, 255, 255, 0.7);
+  --s-divider: rgba(17, 17, 19, 0.12);
+  --s-chip: rgba(255, 255, 255, 0.72);
+  --s-chip-border: rgba(79, 70, 229, 0.35);
+  --s-chip-fg: #3730A3;
+  --s-text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4), 0 2px 16px rgba(255, 255, 255, 0.45);
+  --s-card-shadow: 0 1px 3px rgba(17, 17, 19, 0.08);
+}
+
+/* 不支持毛玻璃的浏览器：提高卡片不透明度来保证可读性 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lp-surface[data-tone=dark][data-wp=image] {
+    --s-glass: rgba(18, 18, 22, 0.8);
+    --s-glass-hover: rgba(18, 18, 22, 0.88);
+    --s-glass-strong: rgba(18, 18, 22, 0.85);
+  }
+  .lp-surface[data-tone=light][data-wp=image] {
+    --s-glass: rgba(255, 255, 255, 0.88);
+    --s-glass-hover: rgba(255, 255, 255, 0.94);
+    --s-glass-strong: rgba(255, 255, 255, 0.92);
+  }
+}
+
+/* 毛玻璃仅在图片壁纸下启用：纯色背景下模糊没有意义且耗性能 */
+.lp-surface[data-wp=image] {
+  --s-backdrop: blur(var(--s-blur)) saturate(150%);
+}
+
+/* 用 @utility 定义，才能配合 sm: 等响应式前缀使用 */
+@utility lp-glass {
+  background: var(--s-glass);
+  border: 1px solid var(--s-border);
+  box-shadow: var(--s-card-shadow);
+  -webkit-backdrop-filter: var(--s-backdrop, none);
+  backdrop-filter: var(--s-backdrop, none);
+}
+
+@utility lp-glass-strong {
+  background: var(--s-glass-strong);
+  border: 1px solid var(--s-border);
+  -webkit-backdrop-filter: var(--s-backdrop, none);
+  backdrop-filter: var(--s-backdrop, none);
+}
+
+@utility lp-text-shadow {
+  text-shadow: var(--s-text-shadow);
+}
+
+@utility lp-focus {
+  outline: none;
+  &:focus-visible {
+    box-shadow: 0 0 0 3px var(--focus);
+  }
+}
+
+.lp-dots {
+  background-color: var(--s-base);
+  background-image: radial-gradient(var(--s-dots) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* 基础样式放进 base 层，才能被组件上的工具类覆盖（如 lp-focus、输入框自带的焦点样式） */
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: rgba(79, 70, 229, 0.25);
+  }
+
+  /* 细滚动条，跟随 color-scheme */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(128, 128, 140, 0.35) transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 底部浮动操作条 */
+.lp-bar-enter-active, .lp-bar-leave-active { transition: opacity 200ms ease, transform 200ms ease; }
+.lp-bar-enter-from, .lp-bar-leave-to { opacity: 0; transform: translateY(12px); }

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>手机端面板</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;family=Noto+Sans+SC:wght@300;400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif;background:#0A0B0E;color:#EDEDEF}
+a{color:#EDEDEF;text-decoration:none}a:hover{color:#FFFFFF}
+.lp-dots{background-color:#0A0B0E;background-image:radial-gradient(rgba(255,255,255,0.07) 1px,transparent 1px);background-size:20px 20px}
+</style>
+</helmet>
+<div class="lp-dots" style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; font-family: 'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif; color: #EDEDEF;">
+<div style="flex-grow: 1; padding: 28px 16px 16px; display: flex; flex-direction: column; gap: 18px;">
+<div style="display: flex; align-items: flex-end;">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;">
+<span style="font-size: 52px; font-weight: 300; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums;">14:32</span>
+<span style="font-size: 13px; color: #A1A1AA;">9月22日 星期二 · 23 台在线</span>
+</div>
+<div role="group" aria-label="地址模式" style="display: flex; padding: 3px; border-radius: 9px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);">
+<button style="height: 28px; padding: 0 10px; border: 0; border-radius: 6px; background: rgba(255,255,255,0.14); color: #FFFFFF; font: inherit; font-size: 12px;">内网</button>
+<button style="height: 28px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #A1A1AA; font: inherit; font-size: 12px;">外网</button>
+</div>
+</div>
+<label style="height: 46px; box-sizing: border-box; padding: 0 14px; display: flex; align-items: center; gap: 10px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8B8D98" stroke-width="1.8" stroke-linecap="round"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM21 21l-5-5"></path></svg>
+<input placeholder="搜索应用、设备或 IP" style="flex-grow: 1; min-width: 0; border: 0; outline: none; background: transparent; color: #EDEDEF; font: inherit; font-size: 15px;">
+</label>
+<a href="#" style="height: 44px; padding: 0 14px; border-radius: 12px; background: rgba(79,70,229,0.16); border: 1px solid rgba(129,120,255,0.35); display: flex; align-items: center; gap: 10px; font-size: 13px; color: #C7C4FF;">
+<span style="width: 6px; height: 6px; border-radius: 3px; background: #8B84FF;"></span><span style="flex-grow: 1;">发现 3 台新设备，1 台 IP 已变化</span>
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C7C4FF" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg>
+</a>
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+<section style="display: flex; flex-direction: column; gap: 12px;">
+<h2 style="margin: 0; font-size: 13px; font-weight: 600; color: #D4D4D8;">{{g.name}}</h2>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 8px;">
+<sc-for list="{{g.apps}}" as="a" hint-placeholder-count="4">
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 7px; opacity: {{a.opacity}};">
+<span style="width: 56px; height: 56px; border-radius: 15px; background: {{a.bg}}; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center;">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="{{a.tint}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{a.icon}}"></path></svg></span>
+<span style="font-size: 11.5px; color: #D4D4D8; max-width: 76px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{a.name}}</span>
+</a>
+</sc-for>
+</div>
+</section>
+</sc-for>
+</div>
+<nav aria-label="底部导航" style="height: 72px; box-sizing: border-box; padding: 0 12px 8px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid rgba(255,255,255,0.08); background: rgba(10,11,14,0.9);">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+<a href="{{t.href}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11px; color: {{t.fg}};">
+<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="{{t.fg}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{t.icon}}"></path></svg>{{t.label}}</a>
+</sc-for>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const I = {
+nas: 'M3 12h18M5 5h14l2 7v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6zM7 16h.01M11 16h.01',
+layers: 'M12 2l9 5-9 5-9-5zM3 12l9 5 9-5M3 17l9 5 9-5',
+server: 'M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01',
+film: 'M3 3h18v18H3zM7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4M3 12h18',
+image: 'M3 3h18v18H3zM8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21',
+router: 'M3 14h18v6H3zM7 17h.01M11 17h.01M12 14V9M8.5 7a5 5 0 0 1 7 0M6 4.5a8.5 8.5 0 0 1 12 0',
+shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+home: 'M3 11l9-8 9 8M5 9.5V21h14V9.5',
+download: 'M12 3v12M7 10l5 5 5-5M4 21h16',
+music: 'M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM21 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z',
+chart: 'M3 3v18h18M7 15l4-4 3 3 5-6'
+};
+const T = { blue: '#8FA8FF', teal: '#5ED3BA', amber: '#F2BD62', violet: '#B4A1FF', rose: '#F79AAB', green: '#7BD88F', slate: '#A8B0BD' };
+const hexA = (h, a) => 'rgba(' + parseInt(h.slice(1, 3), 16) + ',' + parseInt(h.slice(3, 5), 16) + ',' + parseInt(h.slice(5, 7), 16) + ',' + a + ')';
+const a = (name, icon, tint, off) => ({ name, icon: I[icon], tint: T[tint], bg: hexA(T[tint], 0.14), opacity: off ? 0.5 : 1 });
+const groups = [
+{ name: '存储与虚拟化', apps: [a('飞牛 fnOS', 'nas', 'blue'), a('群晖 DSM', 'nas', 'teal'), a('PVE', 'layers', 'amber'), a('ESXi', 'server', 'slate', true)] },
+{ name: '影音与工具', apps: [a('Jellyfin', 'film', 'violet'), a('Immich', 'image', 'rose'), a('Navidrome', 'music', 'green'), a('qBittorrent', 'download', 'violet'),
+a('OpenWrt', 'router', 'teal'), a('AdGuard', 'shield', 'green'), a('Portainer', 'box', 'blue'), a('Home Assistant', 'home', 'teal')] }
+];
+const tabs = [
+{ label: '面板', href: 'Main.dc.html', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', fg: '#FFFFFF' },
+{ label: '设备', href: 'Discovery.dc.html', icon: 'M12 12l6-6M19 12a7 7 0 1 1-7-7M15 12a3 3 0 1 1-3-3', fg: '#8B8D98' },
+{ label: '扫描', href: 'Scan.dc.html', icon: 'M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7', fg: '#8B8D98' },
+{ label: '设置', href: '#', icon: 'M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1M15 4v4M9 10v4M17 16v4', fg: '#8B8D98' }
+];
+return { groups, tabs };
+}
+}
+</script>
+</body>
+</html>

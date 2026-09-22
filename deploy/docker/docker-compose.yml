@@ -1,0 +1,28 @@
+# LanPanel 部署（Linux 主机：Ubuntu / 飞牛 fnOS / PVE 等）
+#   docker compose up -d
+# 浏览器访问 http://<主机IP>:3080
+services:
+  lanpanel:
+    image: lanpanel:latest
+    container_name: lanpanel
+    restart: unless-stopped
+    # 必须使用 host 网络：
+    #  1. 内外网自动判断需要看到访问者的真实 IP（bridge 模式下都是 172.17.0.1）
+    #  2. 设备发现需要收发局域网广播（ARP、mDNS、SSDP、NetBIOS）
+    network_mode: host
+    cap_add:
+      - NET_RAW          # ARP / ICMP 扫描
+    environment:
+      - LANPANEL_LISTEN=:3080   # 端口被占用时修改这里
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data:/data
+    # 资源上限（实际占用约 10–30MB）
+    mem_limit: 256m
+
+  # ---- 仅在 macOS / Windows 的 Docker Desktop 上本地试用时使用 ----
+  # Docker Desktop 的 host 网络与 Linux 不同，可改用端口映射（内外网自动判断与设备发现会受限）：
+  # lanpanel-desktop:
+  #   image: lanpanel:latest
+  #   ports: ["3080:3080"]
+  #   volumes: ["./data:/data"]

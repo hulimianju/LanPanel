@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>LanPanel 设计规范</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;family=Noto+Sans+SC:wght@300;400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif;background:#FFFFFF;color:#18181B}
+a{color:#4338CA;text-decoration:none}a:hover{color:#3730A3}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1360px; box-sizing: border-box; padding: 56px 64px; display: flex; flex-direction: column; gap: 44px; background: #FFFFFF; font-family: 'Geist','PingFang SC','Noto Sans SC',system-ui,sans-serif; color: #18181B;">
+<header style="display: flex; align-items: flex-end; gap: 24px;">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px;">
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #71717A;">LANPANEL DESIGN SYSTEM · v0.1</span>
+<h1 style="margin: 0; font-size: 36px; font-weight: 600; letter-spacing: -0.02em;">设计规范</h1>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, 280px); gap: 16px;">
+<sc-for list="{{principles}}" as="p" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<span style="font-size: 14px; font-weight: 600;">{{p.t}}</span>
+<span style="font-size: 12.5px; line-height: 1.6; color: #52525B;">{{p.d}}</span>
+</div>
+</sc-for>
+</div>
+</header>
+
+<section style="display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-size: 13px; font-weight: 600; color: #52525B;">颜色 · 中性色（浅色 / 深色）</h2>
+<div style="display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 8px;">
+<sc-for list="{{neutral}}" as="c" hint-placeholder-count="10">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="height: 56px; border-radius: 10px; background: {{c.hex}}; border: 1px solid #EEEEF1;"></div>
+<span style="font-size: 12px; font-weight: 500;">{{c.name}}</span>
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #71717A;">{{c.hex}}</span>
+<span style="font-size: 11px; color: #71717A;">{{c.use}}</span>
+</div>
+</sc-for>
+</div>
+<h2 style="margin: 8px 0 0; font-size: 13px; font-weight: 600; color: #52525B;">颜色 · 强调与状态</h2>
+<div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px;">
+<sc-for list="{{semantic}}" as="c" hint-placeholder-count="8">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="height: 56px; border-radius: 10px; background: {{c.hex}}; display: flex; align-items: flex-end; padding: 8px; box-sizing: border-box; font-size: 11px; color: {{c.on}};">Aa 文本</div>
+<span style="font-size: 12px; font-weight: 500;">{{c.name}}</span>
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #71717A;">{{c.hex}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 56px;">
+<section style="display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font-size: 13px; font-weight: 600; color: #52525B;">字体</h2>
+<div style="display: flex; gap: 24px; font-size: 12px; color: #52525B;">
+<span><b style="font-weight: 600; color: #18181B;">Geist</b> 界面与数字</span>
+<span><b style="font-family: 'Geist Mono', ui-monospace, monospace; font-weight: 500; color: #18181B;">Geist Mono</b> IP · MAC · 端口 · 日志</span>
+<span><b style="font-weight: 600; color: #18181B;">苹方 / Noto Sans SC</b> 中文</span>
+</div>
+<sc-for list="{{type}}" as="t" hint-placeholder-count="7">
+<div style="display: flex; align-items: baseline; gap: 16px; padding-bottom: 10px; border-bottom: 1px solid #F1F1F3;">
+<span style="width: 110px; flex: none; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #71717A;">{{t.spec}}</span>
+<span style="font-size: {{t.size}}; font-weight: {{t.weight}}; font-family: {{t.font}}; letter-spacing: {{t.ls}}; line-height: 1.2;">{{t.sample}}</span>
+</div>
+</sc-for>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font-size: 13px; font-weight: 600; color: #52525B;">间距 · 圆角 · 层级</h2>
+<div style="display: flex; align-items: flex-end; gap: 12px;">
+<sc-for list="{{spacing}}" as="s" hint-placeholder-count="7">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+<div style="width: {{s.px}}; height: {{s.px}}; background: #C7C9FF; border-radius: 3px;"></div>
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #71717A;">{{s.v}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 12px;">
+<sc-for list="{{radii}}" as="r" hint-placeholder-count="4">
+<div style="flex-grow: 1; height: 64px; border: 1px solid #D4D4D8; background: #FAFAFB; border-radius: {{r.px}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;">
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px;">{{r.px}}</span>
+<span style="font-size: 11px; color: #71717A;">{{r.use}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 12px;">
+<div style="flex-grow: 1; height: 64px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E8E8EC; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #52525B;">卡片 · 1px 描边，无阴影</div>
+<div style="flex-grow: 1; height: 64px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E8E8EC; box-shadow: 0 12px 32px rgba(24,24,27,0.12); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #52525B;">浮层 · 抽屉 / 弹窗</div>
+</div>
+</section>
+</div>
+
+<section style="display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-size: 13px; font-weight: 600; color: #52525B;">组件</h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+<div style="padding: 20px; border-radius: 12px; border: 1px solid #E8E8EC; display: flex; flex-direction: column; gap: 14px;">
+<span style="font-size: 12px; color: #71717A;">按钮</span>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<button style="height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: #4F46E5; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 500;">主要操作</button>
+<button style="height: 36px; padding: 0 14px; border: 1px solid #E4E4E7; border-radius: 8px; background: #FFFFFF; color: #18181B; font: inherit; font-size: 13px; font-weight: 500;">次要</button>
+<button style="height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: #3F3F46; font: inherit; font-size: 13px; font-weight: 500;">文字</button>
+<button style="height: 36px; padding: 0 14px; border: 1px solid #E4E4E7; border-radius: 8px; background: #FFFFFF; color: #B42318; font: inherit; font-size: 13px; font-weight: 500;">危险</button>
+</div>
+<span style="font-size: 12px; color: #71717A;">输入与开关</span>
+<div style="display: flex; align-items: center; gap: 12px;">
+<input placeholder="192.168.1.0/24" style="flex-grow: 1; min-width: 0; height: 36px; box-sizing: border-box; padding: 0 12px; border-radius: 8px; border: 1px solid #4F46E5; outline: 3px solid rgba(79,70,229,0.15); font-family: 'Geist Mono', ui-monospace, monospace; font-size: 13px;">
+<span role="switch" aria-checked="true" aria-label="示例开关" style="width: 36px; height: 20px; flex: none; border-radius: 10px; background: #4F46E5; display: flex; align-items: center; justify-content: flex-end; padding: 2px; box-sizing: border-box;"><span style="width: 16px; height: 16px; border-radius: 8px; background: #FFFFFF;"></span></span>
+<span role="switch" aria-checked="false" aria-label="示例开关" style="width: 36px; height: 20px; flex: none; border-radius: 10px; background: #D4D4D8; display: flex; align-items: center; padding: 2px; box-sizing: border-box;"><span style="width: 16px; height: 16px; border-radius: 8px; background: #FFFFFF;"></span></span>
+</div>
+</div>
+
+<div style="padding: 20px; border-radius: 12px; border: 1px solid #E8E8EC; display: flex; flex-direction: column; gap: 14px;">
+<span style="font-size: 12px; color: #71717A;">状态徽标</span>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<span style="height: 22px; padding: 0 8px; border-radius: 6px; background: #E6F6EE; color: #11794B; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px;"><span style="width: 6px; height: 6px; border-radius: 3px; background: #22A06B;"></span>在线</span>
+<span style="height: 22px; padding: 0 8px; border-radius: 6px; background: #F1F1F4; color: #52525B; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px;"><span style="width: 6px; height: 6px; border-radius: 3px; background: #A1A1AA;"></span>离线</span>
+<span style="height: 22px; padding: 0 8px; border-radius: 6px; background: #EEF0FF; color: #4338CA; font-size: 12px; font-weight: 600; display: flex; align-items: center;">新</span>
+<span style="height: 22px; padding: 0 8px; border-radius: 6px; background: #FFF4E0; color: #A35200; font-size: 12px; font-weight: 500; display: flex; align-items: center;">IP 已变化</span>
+<span style="height: 22px; padding: 0 8px; border-radius: 6px; background: #FEECEB; color: #B42318; font-size: 12px; font-weight: 500; display: flex; align-items: center;">扫描失败</span>
+</div>
+<span style="font-size: 12px; color: #71717A;">来源标签 · 服务标签</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+<sc-for list="{{sources}}" as="s" hint-placeholder-count="6">
+<span style="height: 20px; padding: 0 6px; border-radius: 5px; border: 1px solid #E4E4E7; background: #FAFAFB; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #52525B; display: flex; align-items: center;">{{s}}</span>
+</sc-for>
+<span style="height: 24px; padding: 0 8px; border-radius: 6px; background: #EEF0FF; color: #4338CA; font-size: 12px; display: flex; align-items: center; gap: 4px;">fnOS<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; opacity: 0.75;">:5666</span></span>
+<span style="height: 24px; padding: 0 8px; border-radius: 6px; background: #F1F1F4; color: #52525B; font-size: 12px; display: flex; align-items: center; gap: 4px;">SSH<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; opacity: 0.75;">:22</span></span>
+</div>
+</div>
+
+<div style="padding: 20px; border-radius: 12px; background: #0A0B0E; display: flex; flex-direction: column; gap: 14px;">
+<span style="font-size: 12px; color: #A1A1AA;">应用卡片 · 深色面板</span>
+<div style="height: 68px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 12px;">
+<div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(143,168,255,0.14); display: flex; align-items: center; justify-content: center;">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8FA8FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M5 5h14l2 7v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6zM7 16h.01M11 16h.01"></path></svg></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px;">
+<span style="font-size: 14px; font-weight: 500; color: #EDEDEF;">飞牛 fnOS</span>
+<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #8B8D98;">192.168.1.23:5666</span>
+</div>
+<span style="width: 7px; height: 7px; border-radius: 4px; background: #3DD68C;"></span>
+</div>
+<span style="font-size: 12px; line-height: 1.6; color: #A1A1AA;">图标底色 = 图标色 14% 透明度；7 种色调共享同一明度，避免单卡抢眼。离线卡片整体降到 55% 不透明度。</span>
+</div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1360}}'>
+class Component extends DCLogic {
+renderVals() {
+const mono = "'Geist Mono', ui-monospace, monospace";
+const sans = "'Geist','PingFang SC','Noto Sans SC',sans-serif";
+const principles = [
+{ t: '克制', d: '中性色承载界面，靛蓝只用于操作与选中，状态色只用于状态。' },
+{ t: '信息优先', d: 'IP、MAC、端口一律等宽字体，可一键复制；表格密度适合一屏看完一个网段。' },
+{ t: '一套 token', d: '面板首页与管理页共享同一套变量，深浅色、路由器小屏与桌面自动切换。' }
+];
+const neutral = [
+['50', '#FAFAFB', '表头 / 次级底'], ['100', '#F4F4F5', '标签底'], ['200', '#E8E8EC', '描边'], ['300', '#D4D4D8', '禁用描边'], ['400', '#A1A1AA', '占位'],
+['500', '#71717A', '辅助文字'], ['600', '#52525B', '次要文字'], ['800', '#27272A', '深色描边'], ['900', '#18181B', '正文'], ['950', '#0A0B0E', '深色底']
+].map(([name, hex, use]) => ({ name: 'Gray ' + name, hex, use }));
+const semantic = [
+['Indigo 600 · 主色', '#4F46E5', '#FFFFFF'], ['Indigo 50', '#EEF0FF', '#4338CA'], ['Green · 在线', '#22A06B', '#FFFFFF'], ['Green 50', '#E6F6EE', '#11794B'],
+['Amber · 变化', '#E5A000', '#18181B'], ['Amber 50', '#FFF4E0', '#A35200'], ['Red · 危险', '#D92D20', '#FFFFFF'], ['Red 50', '#FEECEB', '#B42318']
+].map(([name, hex, on]) => ({ name, hex, on }));
+const type = [
+{ spec: '88 / 300 时钟', size: '64px', weight: 300, font: sans, ls: '-0.04em', sample: '14:32' },
+{ spec: '36 / 600 标题', size: '30px', weight: 600, font: sans, ls: '-0.02em', sample: '设计规范 Design' },
+{ spec: '22 / 600 页面', size: '22px', weight: 600, font: sans, ls: '-0.01em', sample: '设备发现' },
+{ spec: '16 / 600 区块', size: '16px', weight: 600, font: sans, ls: '0', sample: '正在扫描 192.168.1.0/24' },
+{ spec: '14 / 400 正文', size: '14px', weight: 400, font: sans, ls: '0', sample: '按 MAC 绑定设备，IP 变化后自动改写地址' },
+{ spec: '12 / 400 辅助', size: '12px', weight: 400, font: sans, ls: '0', sample: '上次扫描 12 分钟前，耗时 38 秒' },
+{ spec: '13 / Mono 数据', size: '13px', weight: 400, font: mono, ls: '0', sample: '192.168.1.23  3C:7C:3F:A1:22:9E  :5666' }
+];
+const spacing = [4, 8, 12, 16, 20, 24, 32].map(v => ({ v, px: v + 'px' }));
+const radii = [['6px', '徽标'], ['8px', '按钮 / 输入'], ['12px', '卡片'], ['16px', '弹窗']].map(([px, use]) => ({ px, use }));
+const sources = ['ARP', 'mDNS', 'SSDP', 'NetBIOS', 'DHCP', 'WSD'];
+return { principles, neutral, semantic, type, spacing, radii, sources };
+}
+}
+</script>
+</body>
+</html>

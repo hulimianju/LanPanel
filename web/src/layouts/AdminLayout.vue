@@ -52,9 +52,7 @@ async function logout() {
       :class="mobileOpen ? 'translate-x-0' : '-translate-x-full'"
     >
       <div class="mb-3.5 flex h-9 items-center gap-2.5 px-2">
-        <div class="flex size-[26px] items-center justify-center rounded-[7px] bg-accent">
-          <LayoutGrid class="size-[15px] text-white" />
-        </div>
+        <img src="/favicon.svg" alt="" class="size-[30px] shrink-0" />
         <span class="grow truncate text-[15px] font-semibold tracking-[-0.01em]">{{ app.settings?.siteTitle }}</span>
         <button type="button" class="lp-focus flex size-8 items-center justify-center rounded-sm md:hidden" aria-label="关闭菜单" @click="mobileOpen = false">
           <X class="size-4" />

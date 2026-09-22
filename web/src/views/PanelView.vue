@@ -155,9 +155,7 @@ const tileMin = computed(() => (settings.value.cardSize === 'compact' ? '190px' 
 
     <header class="flex h-16 shrink-0 items-center gap-3 px-4 sm:px-8">
       <div class="flex min-w-0 items-center gap-2.5">
-        <div class="flex size-7 shrink-0 items-center justify-center rounded-sm bg-accent">
-          <LayoutGrid class="size-4 text-white" />
-        </div>
+        <img src="/favicon.svg" alt="" class="size-8 shrink-0" />
         <span class="lp-text-shadow truncate text-[15px] font-semibold tracking-[-0.01em]">{{ settings.siteTitle }}</span>
       </div>
       <div class="grow" />

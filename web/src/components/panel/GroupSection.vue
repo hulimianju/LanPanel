@@ -2,7 +2,7 @@
 import { nextTick, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import { GripVertical, Pencil, Plus, Trash2 } from 'lucide-vue-next'
-import type { Group, Item } from '@/lib/types'
+import type { Group, Item, ItemStatus } from '@/lib/types'
 import AppTile from './AppTile.vue'
 
 const props = defineProps<{
@@ -12,6 +12,7 @@ const props = defineProps<{
   mode: 'lan' | 'wan'
   editing: boolean
   compact: boolean
+  status?: Record<string, ItemStatus>
 }>()
 const emit = defineEmits<{
   layout: []
@@ -120,6 +121,7 @@ const gridClass =
         :mode="mode"
         :editing="false"
         :compact="compact"
+        :status="status?.[it.id]"
       />
     </div>
   </section>

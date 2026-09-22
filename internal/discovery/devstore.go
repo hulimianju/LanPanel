@@ -15,15 +15,18 @@ import (
 )
 
 const (
-	maxHistory    = 30 // 保留的扫描历史条数
-	maxIPHistory  = 20 // 每台设备保留的 IP 变更记录
+	maxEvents     = 300 // 保留的设备动态条数
+	maxHistory    = 30  // 保留的扫描历史条数
+	maxIPHistory  = 20  // 每台设备保留的 IP 变更记录
 	maxRawEntries = 40
 )
 
 type devFile struct {
-	Devices []*Device     `json:"devices"`
-	Scans   []ScanSummary `json:"scans"`
-	NextID  int           `json:"nextId"`
+	Devices   []*Device     `json:"devices"`
+	Scans     []ScanSummary `json:"scans"`
+	NextID    int           `json:"nextId"`
+	Events    []Event       `json:"events"`
+	NextEvent int           `json:"nextEvent"`
 }
 
 // DeviceStore 持久化设备库到 devices.json（与面板配置分开，扫描时频繁写入）。
@@ -287,13 +290,19 @@ func normMAC(mac string) string {
 
 type mergeResult struct {
 	Online, New, IPChanged, Services int
-	Changes                          []IPChange
-	NewDevices                       []string
+	Events                           []Event
+}
+
+func eventOf(typ string, d *Device, now time.Time) Event {
+	return Event{Time: now, Type: typ, Key: d.Key, MAC: d.MAC, Name: d.DisplayName(), IP: d.IP, Vendor: d.Vendor}
 }
 
 // merge 把一次扫描的观测合并进设备库。
 // scanned 为本次扫描覆盖的网段：其中未被观测到的设备标记为离线。
-func (s *DeviceStore) merge(obs map[string]*hostObs, scanned []*net.IPNet, full bool, now time.Time) mergeResult {
+func (s *DeviceStore) merge(obs map[string]*hostObs, scanned []*net.IPNet, full bool, now time.Time, watched func(mac string) bool) mergeResult {
+	if watched == nil {
+		watched = func(string) bool { return false }
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	var res mergeResult
@@ -339,13 +348,13 @@ func (s *DeviceStore) merge(obs map[string]*hostObs, scanned []*net.IPNet, full 
 			s.byK[key] = d
 			s.data.Devices = append(s.data.Devices, d)
 			res.New++
-			res.NewDevices = append(res.NewDevices, key)
 		}
 		seen[key] = true
+		wasOnline := d.Online || !exists
+		oldIP := d.IP
 
 		if d.IP != o.IP && d.IP != "" {
 			res.IPChanged++
-			res.Changes = append(res.Changes, IPChange{MAC: d.MAC, OldIP: d.IP, NewIP: o.IP})
 			if n := len(d.IPHistory); n > 0 && d.IPHistory[n-1].To == nil {
 				t := now
 				d.IPHistory[n-1].To = &t
@@ -397,25 +406,90 @@ func (s *DeviceStore) merge(obs map[string]*hostObs, scanned []*net.IPNet, full 
 			}
 			d.Services = sortedServices(m)
 		}
+		d.Missed = 0
 		res.Services += len(d.Services)
 		res.Online++
+
+		// 动态：新设备（首次扫描作为基准除外）、IP 变化、被关注设备恢复在线
+		switch {
+		case !exists && !baseline:
+			res.Events = append(res.Events, eventOf("new", d, now))
+		case exists && oldIP != "" && oldIP != d.IP:
+			e := eventOf("ip_changed", d, now)
+			e.OldIP = oldIP
+			res.Events = append(res.Events, e)
+		case exists && !wasOnline && watched(d.MAC):
+			res.Events = append(res.Events, eventOf("online", d, now))
+		}
 	}
 
-	// 覆盖网段内本次未出现的设备标记为离线
+	// 覆盖网段内本次未出现的设备：连续两次未出现才判为离线，避免偶发丢包误报
 	for _, d := range s.data.Devices {
 		if seen[d.Key] || !d.Online {
 			continue
 		}
 		ip := net.ParseIP(d.IP)
 		for _, n := range scanned {
-			if ip != nil && n.Contains(ip) {
-				d.Online = false
-				break
+			if ip == nil || !n.Contains(ip) {
+				continue
 			}
+			d.Missed++
+			if d.Missed >= 2 {
+				d.Online = false
+				if watched(d.MAC) {
+					res.Events = append(res.Events, eventOf("offline", d, now))
+				}
+			}
+			break
 		}
 	}
 	_ = s.saveLocked()
 	return res
+}
+
+// addEvents 保存动态并分配编号。
+func (s *DeviceStore) addEvents(evs []Event) {
+	if len(evs) == 0 {
+		return
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for i := range evs {
+		s.data.NextEvent++
+		evs[i].ID = s.data.NextEvent
+	}
+	s.data.Events = append(s.data.Events, evs...)
+	if len(s.data.Events) > maxEvents {
+		s.data.Events = s.data.Events[len(s.data.Events)-maxEvents:]
+	}
+	_ = s.saveLocked()
+}
+
+// Events 返回最近的设备动态（新的在前）。
+func (s *DeviceStore) Events(limit int) []Event {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]Event, 0, min(limit, len(s.data.Events)))
+	for i := len(s.data.Events) - 1; i >= 0 && len(out) < limit; i-- {
+		out = append(out, s.data.Events[i])
+	}
+	return out
+}
+
+// ByIP 查找当前使用该 IP 的设备（用于把面板卡片地址与设备对应起来）。
+func (s *DeviceStore) ByIP(ip string) (Device, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	var best *Device
+	for _, d := range s.data.Devices {
+		if d.IP == ip && (best == nil || d.LastSeen.After(best.LastSeen)) {
+			best = d
+		}
+	}
+	if best == nil {
+		return Device{}, false
+	}
+	return clone(best), true
 }
 
 func (s *DeviceStore) addScan(sum ScanSummary) ScanSummary {

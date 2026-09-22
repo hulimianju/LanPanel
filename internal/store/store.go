@@ -14,6 +14,7 @@ import (
 	"sync"
 
 	"lanpanel/internal/discovery"
+	"lanpanel/internal/notify"
 )
 
 const currentVersion = 1
@@ -40,6 +41,9 @@ func Open(dir string) (*Store, error) {
 		if err := json.Unmarshal(raw, &s.data); err != nil {
 			return nil, fmt.Errorf("解析 %s 失败: %w", s.path, err)
 		}
+	}
+	if s.data.Notify.Type == "" {
+		s.data.Notify = notify.DefaultConfig()
 	}
 	if s.data.Discovery.Concurrency == 0 {
 		s.data.Discovery = discovery.DefaultConfig(discovery.LowResource())

@@ -214,8 +214,21 @@ func panelView(d *store.Data) []groupView {
 
 func (s *Server) getPanel(w http.ResponseWriter, r *http.Request) {
 	var groups []groupView
-	s.store.View(func(d *store.Data) { groups = panelView(d) })
-	writeJSON(w, http.StatusOK, map[string]any{"groups": groups})
+	var items []store.Item
+	s.store.View(func(d *store.Data) {
+		groups = panelView(d)
+		items = append(items, d.Items...)
+	})
+	admin := userOf(r) != ""
+	if !admin {
+		// 访客不需要知道卡片绑定了哪台设备
+		for gi := range groups {
+			for ii := range groups[gi].Items {
+				groups[gi].Items[ii].DeviceMAC = ""
+			}
+		}
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"groups": groups, "status": s.panelStatus(items, admin)})
 }
 
 func (s *Server) system(w http.ResponseWriter, r *http.Request) {
@@ -432,6 +445,9 @@ func (s *Server) createItem(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	if it.DeviceMAC != "" {
+		s.reconcile()
+	}
 	s.store.View(func(d *store.Data) {
 		for _, x := range d.Items {
 			if x.ID == it.ID {
@@ -480,6 +496,16 @@ func (s *Server) updateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.gcUploads()
+	if out.DeviceMAC != "" {
+		s.reconcile()
+		s.store.View(func(d *store.Data) {
+			for _, x := range d.Items {
+				if x.ID == out.ID {
+					out = x
+				}
+			}
+		})
+	}
 	writeJSON(w, http.StatusOK, out)
 }
 

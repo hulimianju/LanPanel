@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"lanpanel/internal/discovery"
+	"lanpanel/internal/notify"
 	"lanpanel/internal/rules"
 )
 
@@ -19,6 +20,8 @@ type Data struct {
 	Discovery discovery.Config `json:"discovery"`
 	// RuleOverrides 保存用户修改过的内置规则与自定义规则（同 ID 覆盖内置规则）
 	RuleOverrides []rules.Rule `json:"ruleOverrides"`
+	// Notify 含推送地址等敏感信息，只通过管理接口读取，不随站点设置下发
+	Notify notify.Config `json:"notify"`
 }
 
 type User struct {

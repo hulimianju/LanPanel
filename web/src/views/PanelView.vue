@@ -246,6 +246,7 @@ const tileMin = computed(() => (settings.value.cardSize === 'compact' ? '190px' 
           :mode="app.addressMode"
           :editing="false"
           :compact="settings.cardSize === 'compact'"
+          :status="panel.status"
         />
       </template>
 

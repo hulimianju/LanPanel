@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import { CircleAlert, CircleCheck, Download, ImagePlus, Upload } from 'lucide-vue-next'
+import { BellRing, CircleAlert, CircleCheck, Download, ImagePlus, Send, Upload } from 'lucide-vue-next'
 import { useApp } from '@/stores/app'
 import { api } from '@/lib/api'
-import type { Settings } from '@/lib/types'
+import type { NotifyConfig, Settings } from '@/lib/types'
 import { resolveTone } from '@/lib/surface'
 import { assessReadability, hexLuminance, sampleImageLuminance } from '@/lib/luminance'
 import { toast, toastError } from '@/lib/toast'
@@ -108,6 +108,54 @@ const previewBg = computed(() => {
   if (wp.value.type === 'color') return { backgroundColor: wp.value.value }
   return {}
 })
+
+// ---- 通知 ----
+const notify = ref<NotifyConfig | null>(null)
+const notifySaved = ref('')
+const notifyMeta = ref<{ lastError?: string; lastSent?: string }>({})
+const notifySaving = ref(false)
+const notifyTesting = ref(false)
+const NOTIFY_TYPES = {
+  wecom: { label: '企业微信群机器人', placeholder: 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=…', hint: '群设置 → 群机器人 → 添加机器人，复制 Webhook 地址' },
+  dingtalk: { label: '钉钉群机器人', placeholder: 'https://oapi.dingtalk.com/robot/send?access_token=…', hint: '安全设置选择「自定义关键词」并填写 LanPanel' },
+  feishu: { label: '飞书群机器人', placeholder: 'https://open.feishu.cn/open-apis/bot/v2/hook/…', hint: '添加「自定义机器人」，不要开启签名校验' },
+  bark: { label: 'Bark（iOS）', placeholder: 'https://api.day.app/你的Key', hint: '在 Bark App 中复制推送地址（到 Key 为止）' },
+  serverchan: { label: 'Server 酱（微信）', placeholder: 'https://sctapi.ftqq.com/SENDKEY.send', hint: '在 sct.ftqq.com 获取 SendKey' },
+  generic: { label: '通用 Webhook', placeholder: 'http://192.168.1.30:8123/api/webhook/lanpanel', hint: 'POST JSON：{ source, title, text, time, data }，可对接 Home Assistant、Node-RED' },
+} as const
+async function loadNotify() {
+  const r = await api.get<{ config: NotifyConfig; lastError?: string; lastSent?: string }>('/api/notify')
+  notify.value = r.config
+  notifySaved.value = JSON.stringify(r.config)
+  notifyMeta.value = { lastError: r.lastError, lastSent: r.lastSent }
+}
+loadNotify().catch(toastError)
+const notifyDirty = computed(() => !!notify.value && JSON.stringify(notify.value) !== notifySaved.value)
+async function saveNotify() {
+  if (!notify.value) return
+  notifySaving.value = true
+  try {
+    notify.value = await api.put<NotifyConfig>('/api/notify', notify.value)
+    notifySaved.value = JSON.stringify(notify.value)
+    toast('通知设置已保存')
+  } catch (e) {
+    toastError(e)
+  } finally {
+    notifySaving.value = false
+  }
+}
+async function testNotify() {
+  if (!notify.value) return
+  notifyTesting.value = true
+  try {
+    await api.post('/api/notify/test', notify.value)
+    toast('测试消息已发送，请查收')
+  } catch (e) {
+    toastError(e)
+  } finally {
+    notifyTesting.value = false
+  }
+}
 
 // ---- 账号 ----
 const pw = ref({ old: '', new: '', confirm: '' })
@@ -312,6 +360,39 @@ const themeOptions = [
             <span class="text-[13px]">{{ opt[1] }}</span>
             <span v-if="opt[2]" class="text-xs text-fg-3">{{ opt[2] }}</span>
           </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- 通知 -->
+    <section v-if="notify" class="rounded-lg border border-line bg-surface">
+      <div class="flex items-center gap-3 border-b border-line px-5 py-3.5">
+        <h2 class="m-0 grow text-sm font-semibold">通知</h2>
+        <label class="flex items-center gap-2 text-[13px] text-fg-2"><Switch v-model="notify.enabled" label="启用通知" />启用</label>
+      </div>
+      <div class="grid gap-5 p-5 md:grid-cols-2">
+        <Field label="推送方式" for="lp-notify-type" :hint="NOTIFY_TYPES[notify.type].hint">
+          <select id="lp-notify-type" v-model="notify.type" class="h-9 rounded-sm border border-line bg-surface px-2.5 text-[13px] text-fg outline-none focus:border-accent">
+            <option v-for="(t, k) in NOTIFY_TYPES" :key="k" :value="k">{{ t.label }}</option>
+          </select>
+        </Field>
+        <Field label="推送地址" for="lp-notify-url" hint="地址只保存在服务端，不会下发给访客">
+          <Input id="lp-notify-url" v-model="notify.url" mono :placeholder="NOTIFY_TYPES[notify.type].placeholder" />
+        </Field>
+        <div class="flex flex-col gap-2 md:col-span-2">
+          <span class="text-xs font-medium text-fg-2">推送哪些动态</span>
+          <div class="flex flex-wrap gap-x-6 gap-y-2">
+            <label v-for="[k, label] in ([['new', '发现新设备'], ['ipChanged', '设备 IP 变化'], ['offline', '绑定设备离线'], ['online', '绑定设备恢复在线']] as const)" :key="k" class="flex cursor-pointer items-center gap-2 text-[13px]">
+              <input v-model="notify.events[k]" type="checkbox" class="size-4 accent-[var(--accent)]" />{{ label }}
+            </label>
+          </div>
+          <span class="text-xs text-fg-3">「离线 / 恢复在线」只针对已绑定面板卡片的设备，设备连续两次扫描未出现才判为离线；一次扫描产生的多条动态会合并成一条消息。</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 md:col-span-2">
+          <Button :loading="notifyTesting" :disabled="!notify.url" @click="testNotify"><Send v-if="!notifyTesting" class="size-3.5" />发送测试消息</Button>
+          <Button variant="primary" :loading="notifySaving" :disabled="!notifyDirty" @click="saveNotify">保存通知设置</Button>
+          <span v-if="notifyMeta.lastError" class="flex items-center gap-1.5 text-xs text-danger-fg"><CircleAlert class="size-3.5" />上次推送失败：{{ notifyMeta.lastError }}</span>
+          <span v-else-if="notifyMeta.lastSent" class="flex items-center gap-1.5 text-xs text-fg-3"><BellRing class="size-3.5" />上次推送：{{ new Date(notifyMeta.lastSent).toLocaleString() }}</span>
         </div>
       </div>
     </section>

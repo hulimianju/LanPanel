@@ -234,3 +234,35 @@ export interface TestResult {
   ruleName?: string
   url?: string
 }
+
+// ---- 阶段 3：联动与通知 ----
+
+export interface ItemStatus {
+  state: 'online' | 'warn' | 'offline'
+  bound: boolean
+  device?: string
+  key?: string
+  mac?: string
+  ip?: string
+  note?: string
+}
+
+export interface DeviceEvent {
+  id: number
+  time: string
+  type: 'new' | 'ip_changed' | 'offline' | 'online'
+  key: string
+  mac?: string
+  name: string
+  ip: string
+  oldIp?: string
+  vendor?: string
+  detail?: string
+}
+
+export interface NotifyConfig {
+  enabled: boolean
+  type: 'generic' | 'wecom' | 'dingtalk' | 'feishu' | 'bark' | 'serverchan'
+  url: string
+  events: { new: boolean; ipChanged: boolean; offline: boolean; online: boolean }
+}

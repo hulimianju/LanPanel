@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Check, Info, Plus, RefreshCw, TriangleAlert, X, Zap } from 'lucide-vue-next'
 import { api } from '@/lib/api'
-import type { DiscoveryConfig, LogLine, ScanSummary } from '@/lib/types'
+import type { DeviceEvent, DiscoveryConfig, LogLine, ScanSummary } from '@/lib/types'
 import { useDiscovery } from '@/stores/discovery'
 import { fmtShort, relTime } from '@/lib/devices'
 import { toast, toastError } from '@/lib/toast'
@@ -34,7 +34,15 @@ async function pollLogs() {
 }
 async function loadScans() {
   scans.value = (await api.get<{ scans: ScanSummary[] }>('/api/discovery/scans')).scans
+  events.value = (await api.get<{ events: DeviceEvent[] }>('/api/discovery/events?limit=30')).events
 }
+const events = ref<DeviceEvent[]>([])
+const EVENT_META = {
+  new: { label: '新设备', cls: 'bg-accent-soft text-accent-soft-fg' },
+  ip_changed: { label: 'IP 变化', cls: 'bg-warning-soft text-warning-fg' },
+  offline: { label: '离线', cls: 'bg-surface-2 text-fg-2' },
+  online: { label: '恢复在线', cls: 'bg-success-soft text-success-fg' },
+} as const
 
 let timer: number | undefined
 async function tick() {
@@ -303,6 +311,26 @@ const nextText = computed(() => {
             <Switch v-model="cfg.scanOnStart" label="启动时扫描" />程序启动时执行一次完整扫描
           </label>
           <Button variant="primary" :disabled="!cfgDirty" :loading="savingCfg" @click="saveConfig">保存设置</Button>
+        </section>
+
+        <!-- 设备动态 -->
+        <section class="flex flex-col gap-2.5 rounded-lg border border-line bg-surface p-[18px]">
+          <div class="flex items-center">
+            <h2 class="m-0 grow text-sm font-semibold">设备动态</h2>
+            <RouterLink to="/admin/settings" class="text-xs text-accent-soft-fg hover:underline">通知设置</RouterLink>
+          </div>
+          <div v-for="e in events" :key="e.id" class="flex items-start gap-2 text-xs">
+            <span class="mt-px shrink-0 rounded-[5px] px-1.5 leading-[18px]" :class="EVENT_META[e.type].cls">{{ EVENT_META[e.type].label }}</span>
+            <div class="flex min-w-0 grow flex-col gap-0.5">
+              <span class="truncate text-fg" :title="e.name">{{ e.name }}</span>
+              <span class="font-mono text-[11px] text-fg-3">
+                <template v-if="e.type === 'ip_changed'">{{ e.oldIp }} → {{ e.ip }}</template><template v-else>{{ e.ip }}</template>
+              </span>
+              <span v-if="e.detail" class="text-[11px] text-success-fg">{{ e.detail }}</span>
+            </div>
+            <span class="shrink-0 text-[11px] text-fg-3">{{ relTime(e.time) }}</span>
+          </div>
+          <p v-if="!events.length" class="m-0 text-xs text-fg-3">暂无动态。新设备、IP 变化，以及绑定设备的上线 / 离线会记录在这里</p>
         </section>
 
         <!-- 最近扫描 -->

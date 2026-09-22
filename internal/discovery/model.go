@@ -27,7 +27,18 @@ type Device struct {
 	LastSeen   time.Time  `json:"lastSeen"`
 	IPHistory  []IPRecord `json:"ipHistory"`
 	Raw        []RawEntry `json:"raw,omitempty"`
-	Acked      bool       `json:"acked"` // 新设备已被用户确认
+	Acked      bool       `json:"acked"`            // 新设备已被用户确认
+	Missed     int        `json:"missed,omitempty"` // 连续未被扫描到的次数（≥2 判为离线，避免偶发丢包误报）
+}
+
+// DisplayName 返回设备的显示名称。
+func (d *Device) DisplayName() string {
+	for _, v := range []string{d.Name, d.Hostname, d.Model, d.OS, d.Vendor} {
+		if v != "" {
+			return v
+		}
+	}
+	return d.IP
 }
 
 type Service struct {
@@ -120,9 +131,24 @@ type ScanSummary struct {
 	Error     string    `json:"error,omitempty"`
 }
 
-// IPChange 描述一次 IP 变化，供阶段 3 的面板卡片自动更新使用。
-type IPChange struct {
-	MAC   string
-	OldIP string
-	NewIP string
+// Event 是一条设备动态：新设备、IP 变化，以及被关注设备（绑定了面板卡片）的上线 / 离线。
+type Event struct {
+	ID     int       `json:"id"`
+	Time   time.Time `json:"time"`
+	Type   string    `json:"type"` // new | ip_changed | offline | online
+	Key    string    `json:"key"`
+	MAC    string    `json:"mac,omitempty"`
+	Name   string    `json:"name"`
+	IP     string    `json:"ip"`
+	OldIP  string    `json:"oldIp,omitempty"`
+	Vendor string    `json:"vendor,omitempty"`
+	Detail string    `json:"detail,omitempty"` // 由上层补充，如"已更新 2 张面板卡片"
+}
+
+// Hooks 让上层（面板）参与扫描流程。
+type Hooks struct {
+	// Watched 判断设备是否被关注；只为被关注的设备记录上线 / 离线动态
+	Watched func(mac string) bool
+	// OnScan 在每次扫描合并完成后调用，可修改事件的 Detail 后再保存
+	OnScan func(sum ScanSummary, events []Event) []Event
 }

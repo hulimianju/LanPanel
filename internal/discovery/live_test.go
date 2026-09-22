@@ -20,7 +20,7 @@ func TestLiveScan(t *testing.T) {
 		t.Fatal(err)
 	}
 	cfg := DefaultConfig(false)
-	sc := NewScanner(st, func() Config { return cfg }, func() []rules.Rule { r, _ := rules.Builtin(); return r }, nil)
+	sc := NewScanner(st, func() Config { return cfg }, func() []rules.Rule { r, _ := rules.Builtin(); return r }, Hooks{})
 	if err := sc.Start("full", "manual"); err != nil {
 		t.Fatal(err)
 	}

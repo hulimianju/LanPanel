@@ -76,10 +76,10 @@ const maxLogs = 400
 
 // Scanner 负责执行扫描与定时调度。
 type Scanner struct {
-	store      *DeviceStore
-	config     func() Config
-	rules      func() []rules.Rule
-	onIPChange func([]IPChange)
+	store  *DeviceStore
+	config func() Config
+	rules  func() []rules.Rule
+	hooks  Hooks
 
 	mu        sync.Mutex
 	status    Status
@@ -91,8 +91,8 @@ type Scanner struct {
 	lastQuick time.Time
 }
 
-func NewScanner(store *DeviceStore, config func() Config, ruleList func() []rules.Rule, onIPChange func([]IPChange)) *Scanner {
-	return &Scanner{store: store, config: config, rules: ruleList, onIPChange: onIPChange}
+func NewScanner(store *DeviceStore, config func() Config, ruleList func() []rules.Rule, hooks Hooks) *Scanner {
+	return &Scanner{store: store, config: config, rules: ruleList, hooks: hooks}
 }
 
 func (s *Scanner) Store() *DeviceStore { return s.store }
@@ -491,13 +491,15 @@ func (s *Scanner) run(ctx context.Context, mode, trigger string) ScanSummary {
 			}
 		}
 		fwg.Wait()
-		col.mu.Lock()
-		for ip := range open {
-			if o, ok := col.obs[ip]; ok {
-				o.PortScanned = true
+		if ctx.Err() == nil {
+			col.mu.Lock()
+			for _, ip := range aliveIPs {
+				if o, ok := col.obs[ip]; ok {
+					o.PortScanned = true
+				}
 			}
+			col.mu.Unlock()
 		}
-		col.mu.Unlock()
 		s.setPhase("fingerprint", "done", nOpen, nOpen, "")
 	}
 
@@ -535,14 +537,18 @@ func (s *Scanner) run(ctx context.Context, mode, trigger string) ScanSummary {
 			scanned = append(scanned, t.Net)
 		}
 	}
-	res := s.store.merge(obs, scanned, mode == "full" && !sum.Canceled, sum.End)
+	res := s.store.merge(obs, scanned, mode == "full" && !sum.Canceled, sum.End, s.hooks.Watched)
 	sum.Online, sum.New, sum.IPChanged, sum.Services = res.Online, res.New, res.IPChanged, res.Services
-	for _, c := range res.Changes {
-		s.addLog("INFO", c.MAC, fmt.Sprintf("IP 变化：%s → %s", c.OldIP, c.NewIP))
+	events := res.Events
+	if s.hooks.OnScan != nil {
+		events = s.hooks.OnScan(sum, events)
 	}
-	if len(res.Changes) > 0 && s.onIPChange != nil {
-		s.onIPChange(res.Changes)
+	for _, e := range events {
+		msg := map[string]string{"new": "新设备", "ip_changed": "IP 变化：" + e.OldIP + " →", "offline": "设备离线", "online": "设备恢复在线"}[e.Type]
+		detail := strings.TrimSpace(fmt.Sprintf("%s %s %s", msg, e.IP, e.Detail))
+		s.addLog("EVENT", e.Name, detail)
 	}
+	s.store.addEvents(events)
 	s.addLog("INFO", "-", fmt.Sprintf("%s完成：%d 台在线，新设备 %d 台，IP 变化 %d 台，服务 %d 个，耗时 %s",
 		modeName, sum.Online, sum.New, sum.IPChanged, sum.Services, sum.End.Sub(start).Round(100*time.Millisecond)))
 	log.Printf("%s完成：%d 台在线，新设备 %d，耗时 %s", modeName, sum.Online, sum.New, sum.End.Sub(start).Round(time.Second))

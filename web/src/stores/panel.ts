@@ -1,18 +1,21 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { api } from '@/lib/api'
-import type { Group, Item } from '@/lib/types'
+import type { Group, Item, ItemStatus } from '@/lib/types'
 
 export type ItemInput = Omit<Item, 'id' | 'order'>
 
 export const usePanel = defineStore('panel', () => {
   const groups = ref<Group[]>([])
+  /** 卡片对应设备的状态（按卡片 ID） */
+  const status = ref<Record<string, ItemStatus>>({})
   const loaded = ref(false)
   const editing = ref(false)
 
   async function load() {
-    const r = await api.get<{ groups: Group[] }>('/api/panel')
+    const r = await api.get<{ groups: Group[]; status: Record<string, ItemStatus> }>('/api/panel')
     groups.value = r.groups
+    status.value = r.status ?? {}
     loaded.value = true
   }
 
@@ -73,7 +76,7 @@ export const usePanel = defineStore('panel', () => {
   }
 
   return {
-    groups, loaded, editing, load, addGroup, renameGroup, removeGroup, saveGroupOrder,
+    groups, status, loaded, editing, load, addGroup, renameGroup, removeGroup, saveGroupOrder,
     addItem, updateItem, removeItem, saveLayout,
   }
 })

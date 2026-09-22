@@ -278,14 +278,14 @@ func (s *Server) importData(w http.ResponseWriter, r *http.Request) {
 		if !ok {
 			continue
 		}
-		v := itemInput{GroupID: gid, Title: it.Title, Desc: it.Desc, URLLan: it.URLLan, URLWan: it.URLWan, Icon: it.Icon, OpenMode: it.OpenMode}
+		v := itemInput{GroupID: gid, Title: it.Title, Desc: it.Desc, URLLan: it.URLLan, URLWan: it.URLWan, Icon: it.Icon, OpenMode: it.OpenMode, DeviceMAC: it.DeviceMAC, DevicePort: it.DevicePort}
 		if v.validate() != nil {
 			continue
 		}
 		now := time.Now()
 		items = append(items, store.Item{
 			ID: store.NewID(), GroupID: gid, Title: v.Title, Desc: v.Desc, URLLan: v.URLLan, URLWan: v.URLWan,
-			Icon: v.Icon, OpenMode: v.OpenMode, Order: it.Order, CreatedAt: now, UpdatedAt: now,
+			Icon: v.Icon, OpenMode: v.OpenMode, Order: it.Order, DeviceMAC: v.DeviceMAC, DevicePort: v.DevicePort, CreatedAt: now, UpdatedAt: now,
 		})
 	}
 	err := s.store.Update(func(d *store.Data) error {

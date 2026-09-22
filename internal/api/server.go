@@ -27,13 +27,14 @@ type ctxKey int
 const userKey ctxKey = 1
 
 type Server struct {
-	store      *store.Store
-	scanner    *discovery.Scanner
-	sampler    *sysinfo.Sampler
-	limiter    *auth.Limiter
-	uploadsDir string
-	web        fs.FS // 前端构建产物（dist）
-	version    string
+	store       *store.Store
+	scanner     *discovery.Scanner
+	sampler     *sysinfo.Sampler
+	limiter     *auth.Limiter
+	uploadsDir  string
+	web         fs.FS // 前端构建产物（dist）
+	version     string
+	notifyState notifyState
 }
 
 func New(st *store.Store, devices *discovery.DeviceStore, dataDir string, web fs.FS, version string) *Server {
@@ -45,7 +46,8 @@ func New(st *store.Store, devices *discovery.DeviceStore, dataDir string, web fs
 		web:        web,
 		version:    version,
 	}
-	s.scanner = discovery.NewScanner(devices, s.DiscoveryConfig, s.RuleList, nil)
+	s.scanner = discovery.NewScanner(devices, s.DiscoveryConfig, s.RuleList, discovery.Hooks{Watched: s.watched, OnScan: s.onScan})
+	s.reconcile() // 启动时先对齐一次卡片地址（程序停止期间设备 IP 可能已变化，下次扫描前以设备库为准）
 	return s
 }
 
@@ -94,6 +96,12 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/discovery/scans", s.admin(s.listScans))
 	mux.HandleFunc("GET /api/discovery/config", s.admin(s.getDiscoveryConfig))
 	mux.HandleFunc("PUT /api/discovery/config", s.admin(s.putDiscoveryConfig))
+	mux.HandleFunc("GET /api/discovery/events", s.admin(s.listEvents))
+
+	// 通知
+	mux.HandleFunc("GET /api/notify", s.admin(s.getNotify))
+	mux.HandleFunc("PUT /api/notify", s.admin(s.putNotify))
+	mux.HandleFunc("POST /api/notify/test", s.admin(s.testNotify))
 
 	// 端口规则
 	mux.HandleFunc("GET /api/rules", s.admin(s.listRules))

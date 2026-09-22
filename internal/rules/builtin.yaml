@@ -1,0 +1,990 @@
+# LanPanel 内置端口与指纹规则
+#
+# 字段说明：
+#   id        唯一标识
+#   name      服务名称（显示用）
+#   category  分类：nas / virt / router / media / download / ops / smarthome / printcam / base
+#   ports     端口列表；带匹配条件的 Web 规则在其他端口上也会参与识别（应用被映射到非标准端口时依然能认出）
+#   proto     web（自动判断 http/https）| http | https | tcp
+#   match     匹配条件，任一满足即命中（all: true 时需全部满足）
+#             field: title | body | server | header.<名称> | banner | favicon | status
+#             op:    contains（默认，忽略大小写）| equals | prefix | regex | exists
+#   probe     tcp 规则连接后先发送的内容（支持 \r\n 转义），用于触发欢迎信息
+#   device    命中后推断的设备类型：router / switch / ap / nas / server / pc / phone / tv / printer / camera / iot
+#   system    true 表示该服务代表设备的操作系统（如飞牛 fnOS），会显示在设备名下方
+#   icon      面板图标（lucide 名称）；color 图标色调
+#   url       面板地址模板，默认 {scheme}://{ip}:{port}
+
+# ---------------- NAS 与存储 ----------------
+- id: fnos
+  name: 飞牛 fnOS
+  category: nas
+  ports: [5666, 5667]
+  proto: web
+  match: [{field: title, value: 飞牛}, {field: title, value: fnOS}, {field: body, value: fnos-web}]
+  device: nas
+  system: true
+  icon: hard-drive
+  color: blue
+- id: synology-dsm
+  name: 群晖 DSM
+  category: nas
+  ports: [5000, 5001]
+  proto: web
+  match: [{field: title, value: Synology}, {field: body, value: SYNO.SDS}, {field: body, value: synology_}]
+  device: nas
+  system: true
+  icon: database
+  color: teal
+- id: qnap-qts
+  name: 威联通 QTS
+  category: nas
+  ports: [8080, 443, 5000]
+  proto: web
+  match: [{field: title, value: QTS}, {field: title, value: QuTS}, {field: body, value: qnap}]
+  device: nas
+  system: true
+  icon: hard-drive
+  color: blue
+- id: ugreen-ugos
+  name: 绿联 UGOS
+  category: nas
+  ports: [9999, 9443]
+  proto: web
+  match: [{field: title, value: UGOS}, {field: title, value: 绿联}]
+  device: nas
+  system: true
+  icon: hard-drive
+  color: green
+- id: truenas
+  name: TrueNAS
+  category: nas
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: TrueNAS}]
+  device: nas
+  system: true
+  icon: hard-drive
+  color: blue
+- id: unraid
+  name: Unraid
+  category: nas
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: Unraid}, {field: body, value: /webGui/}]
+  device: nas
+  system: true
+  icon: hard-drive
+  color: amber
+- id: openmediavault
+  name: OpenMediaVault
+  category: nas
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: openmediavault}]
+  device: nas
+  system: true
+  icon: hard-drive
+  color: blue
+- id: nextcloud
+  name: Nextcloud
+  category: nas
+  ports: [80, 443, 8080, 8443]
+  proto: web
+  match: [{field: title, value: Nextcloud}]
+  icon: cloud
+  color: blue
+- id: seafile
+  name: Seafile
+  category: nas
+  ports: [8000, 8082]
+  proto: web
+  match: [{field: title, value: Seafile}]
+  icon: cloud
+  color: amber
+- id: alist
+  name: Alist
+  category: nas
+  ports: [5244]
+  proto: web
+  match: [{field: title, value: AList}, {field: title, value: OpenList}]
+  icon: folder
+  color: blue
+- id: cloudreve
+  name: Cloudreve
+  category: nas
+  ports: [5212]
+  proto: web
+  match: [{field: title, value: Cloudreve}]
+  icon: cloud
+  color: violet
+- id: syncthing
+  name: Syncthing
+  category: nas
+  ports: [8384]
+  proto: web
+  match: [{field: title, value: Syncthing}]
+  icon: folder-open
+  color: teal
+- id: minio
+  name: MinIO
+  category: nas
+  ports: [9000, 9001]
+  proto: web
+  match: [{field: title, value: MinIO}, {field: server, value: MinIO}]
+  icon: database
+  color: rose
+- id: immich
+  name: Immich 相册
+  category: nas
+  ports: [2283]
+  proto: web
+  match: [{field: title, value: Immich}]
+  icon: image
+  color: rose
+- id: photoprism
+  name: PhotoPrism
+  category: nas
+  ports: [2342]
+  proto: web
+  match: [{field: title, value: PhotoPrism}]
+  icon: image
+  color: violet
+
+# ---------------- 虚拟化与容器 ----------------
+- id: pve
+  name: Proxmox VE
+  category: virt
+  ports: [8006]
+  proto: https
+  match: [{field: title, value: Proxmox Virtual Environment}, {field: body, value: pve-manager}]
+  device: server
+  system: true
+  icon: layers
+  color: amber
+- id: pbs
+  name: Proxmox Backup Server
+  category: virt
+  ports: [8007]
+  proto: https
+  match: [{field: title, value: Proxmox Backup Server}]
+  device: server
+  system: true
+  icon: archive
+  color: amber
+- id: esxi
+  name: VMware ESXi
+  category: virt
+  ports: [443]
+  proto: https
+  match: [{field: title, value: VMware ESXi}, {field: body, value: VMware ESXi}, {field: body, value: esxUiApp}]
+  device: server
+  system: true
+  icon: server
+  color: slate
+- id: vcenter
+  name: vCenter
+  category: virt
+  ports: [443]
+  proto: https
+  match: [{field: title, value: vSphere}, {field: body, value: vsphere-client}]
+  icon: server
+  color: slate
+- id: portainer
+  name: Portainer
+  category: virt
+  ports: [9000, 9443]
+  proto: web
+  match: [{field: title, value: Portainer}]
+  icon: container
+  color: blue
+- id: dockge
+  name: Dockge
+  category: virt
+  ports: [5001]
+  proto: web
+  match: [{field: title, value: Dockge}]
+  icon: container
+  color: teal
+- id: docker-api
+  name: Docker API
+  category: virt
+  ports: [2375]
+  proto: http
+  match: [{field: header.Api-Version, op: exists}]
+  icon: container
+  color: blue
+- id: cockpit
+  name: Cockpit
+  category: virt
+  ports: [9090]
+  proto: https
+  match: [{field: title, value: Cockpit}, {field: body, value: cockpit}]
+  icon: gauge
+  color: blue
+- id: 1panel
+  name: 1Panel
+  category: virt
+  ports: [10086, 9999]
+  proto: web
+  match: [{field: title, value: 1Panel}]
+  icon: layout-grid
+  color: blue
+- id: baota
+  name: 宝塔面板
+  category: virt
+  ports: [8888]
+  proto: web
+  match: [{field: title, value: 宝塔}, {field: body, value: 安全入口校验失败}]
+  icon: layout-grid
+  color: green
+- id: webmin
+  name: Webmin
+  category: virt
+  ports: [10000]
+  proto: web
+  match: [{field: title, value: Webmin}, {field: server, value: MiniServ}]
+  icon: settings
+  color: slate
+
+# ---------------- 路由与网关 ----------------
+- id: openwrt
+  name: OpenWrt
+  category: router
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: OpenWrt}, {field: body, value: /cgi-bin/luci}, {field: title, value: LuCI}]
+  device: router
+  system: true
+  icon: router
+  color: teal
+- id: istoreos
+  name: iStoreOS
+  category: router
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: iStoreOS}]
+  device: router
+  system: true
+  icon: router
+  color: teal
+- id: ikuai
+  name: 爱快路由
+  category: router
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: 爱快}, {field: body, value: ikuai}]
+  device: router
+  system: true
+  icon: router
+  color: blue
+- id: xiaomi-router
+  name: 小米路由器
+  category: router
+  ports: [80]
+  proto: http
+  match: [{field: title, value: 小米路由器}, {field: body, value: miwifi}]
+  device: router
+  system: true
+  icon: router
+  color: amber
+- id: asus-router
+  name: 华硕路由器
+  category: router
+  ports: [80, 8443]
+  proto: web
+  match: [{field: title, value: ASUS Login}, {field: server, value: httpd/2.0}]
+  device: router
+  system: true
+  icon: router
+  color: slate
+- id: tplink-router
+  name: TP-LINK 路由器
+  category: router
+  ports: [80]
+  proto: http
+  match: [{field: title, value: TP-LINK}, {field: body, value: tplinkwifi}]
+  device: router
+  system: true
+  icon: router
+  color: teal
+- id: routeros
+  name: MikroTik RouterOS
+  category: router
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: RouterOS}]
+  device: router
+  system: true
+  icon: router
+  color: slate
+- id: pfsense
+  name: pfSense
+  category: router
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: pfSense}]
+  device: router
+  system: true
+  icon: shield
+  color: blue
+- id: opnsense
+  name: OPNsense
+  category: router
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: OPNsense}]
+  device: router
+  system: true
+  icon: shield
+  color: amber
+- id: adguard-home
+  name: AdGuard Home
+  category: router
+  ports: [3000, 80]
+  proto: web
+  match: [{field: title, value: AdGuard Home}]
+  icon: shield
+  color: green
+- id: pihole
+  name: Pi-hole
+  category: router
+  ports: [80]
+  proto: web
+  match: [{field: title, value: Pi-hole}]
+  icon: shield
+  color: rose
+- id: nginx-proxy-manager
+  name: Nginx Proxy Manager
+  category: router
+  ports: [81]
+  proto: web
+  match: [{field: title, value: Nginx Proxy Manager}]
+  icon: network
+  color: rose
+- id: lucky
+  name: Lucky
+  category: router
+  ports: [16601]
+  proto: web
+  match: [{field: title, value: Lucky}]
+  icon: network
+  color: amber
+- id: clash-dashboard
+  name: Clash 控制台
+  category: router
+  ports: [9090]
+  proto: web
+  match: [{field: title, value: yacd}, {field: title, value: metacubexd}, {field: title, value: zashboard}, {field: title, value: Clash}]
+  icon: network
+  color: violet
+- id: frps
+  name: frp 控制台
+  category: router
+  ports: [7500]
+  proto: web
+  match: [{field: title, value: frp}]
+  icon: network
+  color: blue
+
+# ---------------- 交换机与无线 AP ----------------
+- id: tplink-easysmart
+  name: TP-LINK 网管交换机
+  category: router
+  ports: [80]
+  proto: http
+  match: [{field: title, value: Easy Smart}, {field: body, value: TL-SG}, {field: body, value: TL-SL}]
+  device: switch
+  system: true
+  icon: network
+  color: teal
+- id: netgear-prosafe
+  name: NETGEAR 交换机
+  category: router
+  ports: [80]
+  proto: web
+  match: [{field: title, value: ProSAFE}, {field: title, value: NETGEAR GS}]
+  device: switch
+  system: true
+  icon: network
+  color: blue
+- id: h3c
+  name: H3C 设备
+  category: router
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: H3C}, {field: body, value: h3c}]
+  system: true
+  icon: network
+  color: blue
+- id: huawei-net
+  name: 华为网络设备
+  category: router
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: HUAWEI}, {field: body, value: huawei}]
+  system: true
+  icon: network
+  color: rose
+- id: ruijie
+  name: 锐捷网络设备
+  category: router
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: 锐捷}, {field: title, value: Ruijie}, {field: body, value: ruijie}]
+  system: true
+  icon: network
+  color: amber
+- id: mikrotik-swos
+  name: MikroTik SwOS
+  category: router
+  ports: [80]
+  proto: http
+  match: [{field: title, value: SwOS}]
+  device: switch
+  system: true
+  icon: network
+  color: slate
+- id: unifi
+  name: UniFi 控制器
+  category: router
+  ports: [8443, 443]
+  proto: https
+  match: [{field: title, value: UniFi}]
+  icon: wifi
+  color: blue
+- id: omada
+  name: TP-LINK Omada
+  category: router
+  ports: [8043, 443]
+  proto: https
+  match: [{field: title, value: Omada}]
+  icon: wifi
+  color: teal
+- id: tplink-ap
+  name: TP-LINK 无线 AP
+  category: router
+  ports: [80]
+  proto: http
+  match: [{field: title, value: TL-AP}, {field: body, value: TL-AP}]
+  device: ap
+  system: true
+  icon: wifi
+  color: teal
+
+# ---------------- 影音 ----------------
+- id: jellyfin
+  name: Jellyfin
+  category: media
+  ports: [8096, 8920]
+  proto: web
+  match: [{field: title, value: Jellyfin}]
+  icon: film
+  color: violet
+- id: emby
+  name: Emby
+  category: media
+  ports: [8096, 8920]
+  proto: web
+  match: [{field: title, value: Emby}]
+  icon: film
+  color: green
+- id: plex
+  name: Plex
+  category: media
+  ports: [32400]
+  proto: web
+  match: [{field: header.X-Plex-Protocol, op: exists}, {field: title, value: Plex}]
+  icon: play
+  color: amber
+- id: navidrome
+  name: Navidrome
+  category: media
+  ports: [4533]
+  proto: web
+  match: [{field: title, value: Navidrome}]
+  icon: music
+  color: green
+- id: audiobookshelf
+  name: Audiobookshelf
+  category: media
+  ports: [13378]
+  proto: web
+  match: [{field: title, value: audiobookshelf}]
+  icon: headphones
+  color: amber
+- id: komga
+  name: Komga
+  category: media
+  ports: [25600]
+  proto: web
+  match: [{field: title, value: Komga}]
+  icon: book-open
+  color: blue
+- id: calibre-web
+  name: Calibre-Web
+  category: media
+  ports: [8083]
+  proto: web
+  match: [{field: title, value: Calibre}]
+  icon: book-open
+  color: amber
+- id: kodi
+  name: Kodi
+  category: media
+  ports: [8080]
+  proto: http
+  match: [{field: title, value: Kodi}]
+  icon: tv
+  color: blue
+- id: moviepilot
+  name: MoviePilot
+  category: media
+  ports: [3000]
+  proto: web
+  match: [{field: title, value: MoviePilot}]
+  icon: film
+  color: rose
+- id: sonarr
+  name: Sonarr
+  category: media
+  ports: [8989]
+  proto: web
+  match: [{field: title, value: Sonarr}]
+  icon: tv
+  color: blue
+- id: radarr
+  name: Radarr
+  category: media
+  ports: [7878]
+  proto: web
+  match: [{field: title, value: Radarr}]
+  icon: film
+  color: amber
+- id: prowlarr
+  name: Prowlarr
+  category: media
+  ports: [9696]
+  proto: web
+  match: [{field: title, value: Prowlarr}]
+  icon: search
+  color: rose
+- id: jellyseerr
+  name: Jellyseerr / Overseerr
+  category: media
+  ports: [5055]
+  proto: web
+  match: [{field: title, value: Jellyseerr}, {field: title, value: Overseerr}]
+  icon: search
+  color: violet
+
+# ---------------- 下载 ----------------
+- id: qbittorrent
+  name: qBittorrent
+  category: download
+  ports: [8080, 8085]
+  proto: web
+  match: [{field: title, value: qBittorrent}]
+  icon: download
+  color: blue
+- id: transmission
+  name: Transmission
+  category: download
+  ports: [9091]
+  proto: web
+  match: [{field: header.X-Transmission-Session-Id, op: exists}, {field: title, value: Transmission}]
+  icon: download
+  color: rose
+- id: ariang
+  name: AriaNg
+  category: download
+  ports: [6880]
+  proto: web
+  match: [{field: title, value: AriaNg}]
+  icon: download
+  color: green
+- id: aria2-rpc
+  name: Aria2 RPC
+  category: download
+  ports: [6800]
+  proto: tcp
+  icon: download
+  color: green
+- id: thunder
+  name: 迅雷
+  category: download
+  ports: [2345]
+  proto: web
+  match: [{field: title, value: 迅雷}]
+  icon: cloud-download
+  color: blue
+- id: deluge
+  name: Deluge
+  category: download
+  ports: [8112]
+  proto: web
+  match: [{field: title, value: Deluge}]
+  icon: download
+  color: blue
+
+# ---------------- 运维与开发 ----------------
+- id: grafana
+  name: Grafana
+  category: ops
+  ports: [3000]
+  proto: web
+  match: [{field: title, value: Grafana}]
+  icon: chart
+  color: amber
+- id: prometheus
+  name: Prometheus
+  category: ops
+  ports: [9090]
+  proto: web
+  match: [{field: title, value: Prometheus}]
+  icon: activity
+  color: rose
+- id: uptime-kuma
+  name: Uptime Kuma
+  category: ops
+  ports: [3001]
+  proto: web
+  match: [{field: title, value: Uptime Kuma}]
+  icon: activity
+  color: green
+- id: netdata
+  name: Netdata
+  category: ops
+  ports: [19999]
+  proto: web
+  match: [{field: title, value: Netdata}]
+  icon: activity
+  color: green
+- id: gitea
+  name: Gitea
+  category: ops
+  ports: [3000]
+  proto: web
+  match: [{field: title, value: Gitea}, {field: title, value: Forgejo}]
+  icon: git-branch
+  color: green
+- id: gitlab
+  name: GitLab
+  category: ops
+  ports: [80, 443]
+  proto: web
+  match: [{field: title, value: GitLab}]
+  icon: git-branch
+  color: amber
+- id: jenkins
+  name: Jenkins
+  category: ops
+  ports: [8080]
+  proto: web
+  match: [{field: header.X-Jenkins, op: exists}]
+  icon: workflow
+  color: rose
+- id: vaultwarden
+  name: Vaultwarden
+  category: ops
+  ports: [80, 8000, 8080]
+  proto: web
+  match: [{field: title, value: Vaultwarden}, {field: title, value: Bitwarden}]
+  icon: key
+  color: blue
+- id: code-server
+  name: code-server
+  category: ops
+  ports: [8080, 8443]
+  proto: web
+  match: [{field: title, value: code-server}]
+  icon: code
+  color: blue
+- id: jupyter
+  name: Jupyter
+  category: ops
+  ports: [8888]
+  proto: web
+  match: [{field: title, value: Jupyter}]
+  icon: notebook
+  color: amber
+- id: phpmyadmin
+  name: phpMyAdmin
+  category: ops
+  ports: [80, 8080]
+  proto: web
+  match: [{field: title, value: phpMyAdmin}]
+  icon: database
+  color: amber
+- id: sun-panel
+  name: Sun-Panel
+  category: ops
+  ports: [3002]
+  proto: web
+  match: [{field: title, value: Sun-Panel}]
+  icon: layout-grid
+  color: amber
+- id: lanpanel
+  name: LanPanel
+  category: ops
+  ports: [3080]
+  proto: web
+  match: [{field: body, value: lp-theme}]
+  icon: layout-grid
+  color: violet
+
+# ---------------- 智能家居 ----------------
+- id: home-assistant
+  name: Home Assistant
+  category: smarthome
+  ports: [8123]
+  proto: web
+  match: [{field: title, value: Home Assistant}]
+  icon: house
+  color: teal
+- id: node-red
+  name: Node-RED
+  category: smarthome
+  ports: [1880]
+  proto: web
+  match: [{field: title, value: Node-RED}]
+  icon: workflow
+  color: rose
+- id: homebridge
+  name: Homebridge
+  category: smarthome
+  ports: [8581]
+  proto: web
+  match: [{field: title, value: Homebridge}]
+  icon: house
+  color: violet
+- id: esphome
+  name: ESPHome
+  category: smarthome
+  ports: [6052]
+  proto: web
+  match: [{field: title, value: ESPHome}]
+  icon: cpu
+  color: slate
+- id: zigbee2mqtt
+  name: Zigbee2MQTT
+  category: smarthome
+  ports: [8080]
+  proto: web
+  match: [{field: title, value: Zigbee2MQTT}]
+  icon: radio
+  color: amber
+- id: emqx
+  name: EMQX
+  category: smarthome
+  ports: [18083]
+  proto: web
+  match: [{field: title, value: EMQX}]
+  icon: message
+  color: green
+- id: mqtt
+  name: MQTT
+  category: smarthome
+  ports: [1883]
+  proto: tcp
+  icon: message
+  color: green
+
+# ---------------- 打印与摄像 ----------------
+- id: cups
+  name: CUPS 打印服务
+  category: printcam
+  ports: [631]
+  proto: web
+  match: [{field: title, value: CUPS}]
+  icon: printer
+  color: slate
+- id: ipp
+  name: IPP 打印
+  category: printcam
+  ports: [631]
+  proto: tcp
+  device: printer
+  icon: printer
+  color: slate
+- id: raw-print
+  name: RAW 打印
+  category: printcam
+  ports: [9100]
+  proto: tcp
+  device: printer
+  icon: printer
+  color: slate
+- id: rtsp
+  name: RTSP 视频流
+  category: printcam
+  ports: [554, 8554]
+  proto: tcp
+  probe: "OPTIONS rtsp://{ip}:{port} RTSP/1.0\r\nCSeq: 1\r\n\r\n"
+  match: [{field: banner, op: prefix, value: RTSP/1.0}]
+  device: camera
+  icon: webcam
+  color: rose
+  url: rtsp://{ip}:{port}
+- id: hikvision
+  name: 海康威视
+  category: printcam
+  ports: [80, 443]
+  proto: web
+  match: [{field: body, value: doc/page/login.asp}, {field: server, value: App-webs}, {field: server, value: DNVRS-Webs}]
+  device: camera
+  system: true
+  icon: camera
+  color: rose
+- id: dahua
+  name: 大华
+  category: printcam
+  ports: [80]
+  proto: http
+  match: [{field: title, value: WEB SERVICE}, {field: body, value: dahua}]
+  device: camera
+  system: true
+  icon: camera
+  color: amber
+- id: frigate
+  name: Frigate
+  category: printcam
+  ports: [5000, 8971]
+  proto: web
+  match: [{field: title, value: Frigate}]
+  icon: webcam
+  color: blue
+
+# ---------------- 基础服务 ----------------
+- id: ssh
+  name: SSH
+  category: base
+  ports: [22, 2222]
+  proto: tcp
+  match: [{field: banner, op: prefix, value: SSH-}]
+  icon: terminal
+  color: slate
+  url: ssh://{ip}:{port}
+- id: telnet
+  name: Telnet
+  category: base
+  ports: [23]
+  proto: tcp
+  icon: terminal
+  color: slate
+- id: ftp
+  name: FTP
+  category: base
+  ports: [21]
+  proto: tcp
+  match: [{field: banner, op: prefix, value: "220"}]
+  icon: folder
+  color: slate
+  url: ftp://{ip}:{port}
+- id: smb
+  name: SMB 共享
+  category: base
+  ports: [445]
+  proto: tcp
+  icon: folder-open
+  color: slate
+  url: smb://{ip}
+- id: afp
+  name: AFP 共享
+  category: base
+  ports: [548]
+  proto: tcp
+  icon: folder-open
+  color: slate
+  url: afp://{ip}
+- id: nfs
+  name: NFS
+  category: base
+  ports: [2049]
+  proto: tcp
+  icon: folder-open
+  color: slate
+- id: rdp
+  name: 远程桌面 RDP
+  category: base
+  ports: [3389]
+  proto: tcp
+  device: pc
+  icon: monitor
+  color: blue
+- id: vnc
+  name: VNC
+  category: base
+  ports: [5900, 5901]
+  proto: tcp
+  match: [{field: banner, op: prefix, value: RFB}]
+  icon: monitor
+  color: slate
+  url: vnc://{ip}:{port}
+- id: dns
+  name: DNS
+  category: base
+  ports: [53]
+  proto: tcp
+  icon: globe
+  color: slate
+- id: mysql
+  name: MySQL
+  category: base
+  ports: [3306]
+  proto: tcp
+  icon: database
+  color: blue
+- id: postgres
+  name: PostgreSQL
+  category: base
+  ports: [5432]
+  proto: tcp
+  icon: database
+  color: blue
+- id: redis
+  name: Redis
+  category: base
+  ports: [6379]
+  proto: tcp
+  probe: "PING\r\n"
+  match: [{field: banner, op: prefix, value: +PONG}, {field: banner, value: NOAUTH}, {field: banner, value: DENIED}]
+  icon: database
+  color: rose
+- id: airplay-http
+  name: AirPlay
+  category: base
+  ports: [5000, 7000]
+  proto: http
+  match: [{field: server, value: AirTunes}]
+  icon: cast
+  color: slate
+- id: airplay
+  name: AirPlay
+  category: base
+  ports: [7000]
+  proto: tcp
+  icon: cast
+  color: slate
+- id: chromecast
+  name: Chromecast
+  category: base
+  ports: [8009]
+  proto: tcp
+  device: tv
+  icon: cast
+  color: slate
+- id: adb
+  name: ADB 调试
+  category: base
+  ports: [5555]
+  proto: tcp
+  icon: smartphone
+  color: green
+- id: web-generic
+  name: 网页
+  category: base
+  ports: [80, 443, 8080, 8443, 8000, 8888, 8081, 9000]
+  proto: web
+  icon: globe
+  color: blue

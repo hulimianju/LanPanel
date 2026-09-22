@@ -4,6 +4,7 @@ import { VueDraggable } from 'vue-draggable-plus'
 import { Check, LayoutGrid, LogIn, Pencil, Plus, Settings2 } from 'lucide-vue-next'
 import { useApp } from '@/stores/app'
 import { usePanel } from '@/stores/panel'
+import { useDiscovery } from '@/stores/discovery'
 import type { Group, Item } from '@/lib/types'
 import { itemUrl } from '@/lib/address'
 import { confirm } from '@/lib/confirm'
@@ -24,7 +25,11 @@ const settings = computed(() => app.settings!)
 const tone = computed(() => app.surfaceTone)
 const isAdmin = computed(() => !!app.user)
 
-onMounted(() => panel.load().catch(toastError))
+const disc = useDiscovery()
+onMounted(() => {
+  panel.load().catch(toastError)
+  if (isAdmin.value) disc.loadStatus().catch(() => {})
+})
 
 // ---- 搜索 ----
 const query = ref('')
@@ -156,6 +161,13 @@ const tileMin = computed(() => (settings.value.cardSize === 'compact' ? '190px' 
         <span class="lp-text-shadow truncate text-[15px] font-semibold tracking-[-0.01em]">{{ settings.siteTitle }}</span>
       </div>
       <div class="grow" />
+      <RouterLink
+        v-if="isAdmin && disc.summary?.new"
+        to="/admin/discovery"
+        class="lp-focus hidden h-8 items-center gap-2 rounded-sm border border-s-chip-border bg-s-chip px-3 text-[13px] text-s-chip-fg sm:flex"
+      >
+        <span class="size-1.5 rounded-full bg-current" />发现 {{ disc.summary.new }} 台新设备
+      </RouterLink>
       <div role="radiogroup" aria-label="地址模式" class="lp-glass-strong flex rounded-[9px] p-[3px]">
         <button
           v-for="m in (['lan', 'wan'] as const)"

@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -334,6 +335,9 @@ type itemInput struct {
 	URLWan   string     `json:"urlWan"`
 	Icon     store.Icon `json:"icon"`
 	OpenMode string     `json:"openMode"`
+	// 绑定设备：IP 变化时自动改写地址（阶段 3）
+	DeviceMAC  string `json:"deviceMac"`
+	DevicePort int    `json:"devicePort"`
 }
 
 var iconColors = map[string]bool{"": true, "blue": true, "teal": true, "amber": true, "violet": true, "rose": true, "green": true, "slate": true}
@@ -370,6 +374,16 @@ func (in *itemInput) validate() error {
 	if in.OpenMode != "self" {
 		in.OpenMode = "new"
 	}
+	if in.DeviceMAC != "" {
+		hw, err := net.ParseMAC(in.DeviceMAC)
+		if err != nil || len(hw) != 6 {
+			return errors.New("设备 MAC 格式错误")
+		}
+		in.DeviceMAC = strings.ToLower(hw.String())
+	}
+	if in.DevicePort < 0 || in.DevicePort > 65535 {
+		return errors.New("设备端口超出范围")
+	}
 	return nil
 }
 
@@ -403,6 +417,7 @@ func (s *Server) createItem(w http.ResponseWriter, r *http.Request) {
 	it := store.Item{
 		ID: store.NewID(), GroupID: in.GroupID, Title: in.Title, Desc: in.Desc,
 		URLLan: in.URLLan, URLWan: in.URLWan, Icon: in.Icon, OpenMode: in.OpenMode,
+		DeviceMAC: in.DeviceMAC, DevicePort: in.DevicePort,
 		CreatedAt: now, UpdatedAt: now,
 	}
 	err := s.store.Update(func(d *store.Data) error {
@@ -453,6 +468,7 @@ func (s *Server) updateItem(w http.ResponseWriter, r *http.Request) {
 			}
 			it.GroupID, it.Title, it.Desc = in.GroupID, in.Title, in.Desc
 			it.URLLan, it.URLWan, it.Icon, it.OpenMode = in.URLLan, in.URLWan, in.Icon, in.OpenMode
+			it.DeviceMAC, it.DevicePort = in.DeviceMAC, in.DevicePort
 			it.UpdatedAt = time.Now()
 			out = *it
 			return nil

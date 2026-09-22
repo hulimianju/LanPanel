@@ -14,9 +14,9 @@ const router = createRouter({
       children: [
         { path: '', redirect: '/admin/settings' },
         { path: 'settings', name: 'settings', component: () => import('@/views/admin/SettingsView.vue'), meta: { title: '设置' } },
-        { path: 'discovery', name: 'discovery', component: () => import('@/views/admin/ComingSoon.vue'), meta: { title: '设备发现' } },
-        { path: 'scan', name: 'scan', component: () => import('@/views/admin/ComingSoon.vue'), meta: { title: '扫描任务' } },
-        { path: 'rules', name: 'rules', component: () => import('@/views/admin/ComingSoon.vue'), meta: { title: '端口规则' } },
+        { path: 'discovery', name: 'discovery', component: () => import('@/views/admin/DiscoveryView.vue'), meta: { title: '设备发现' } },
+        { path: 'scan', name: 'scan', component: () => import('@/views/admin/ScanView.vue'), meta: { title: '扫描任务' } },
+        { path: 'rules', name: 'rules', component: () => import('@/views/admin/RulesView.vue'), meta: { title: '端口规则' } },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },

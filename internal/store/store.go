@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"sort"
 	"sync"
+
+	"lanpanel/internal/discovery"
 )
 
 const currentVersion = 1
@@ -38,6 +40,9 @@ func Open(dir string) (*Store, error) {
 		if err := json.Unmarshal(raw, &s.data); err != nil {
 			return nil, fmt.Errorf("解析 %s 失败: %w", s.path, err)
 		}
+	}
+	if s.data.Discovery.Concurrency == 0 {
+		s.data.Discovery = discovery.DefaultConfig(discovery.LowResource())
 	}
 	if s.data.Secret == "" {
 		s.data.Secret = RandomHex(32)

@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"lanpanel/internal/api"
+	"lanpanel/internal/discovery"
 	"lanpanel/internal/store"
 	"lanpanel/web"
 )
@@ -43,9 +44,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("打开数据目录失败: %v", err)
 	}
+	devices, err := discovery.OpenDeviceStore(*dataDir)
+	if err != nil {
+		log.Fatalf("打开设备库失败: %v", err)
+	}
+	app := api.New(st, devices, *dataDir, web.Dist(), Version)
+	ctx, stopScheduler := context.WithCancel(context.Background())
+	defer stopScheduler()
+	go app.Scanner().RunScheduler(ctx)
+
 	srv := &http.Server{
 		Addr:              *listen,
-		Handler:           api.New(st, *dataDir, web.Dist(), Version).Handler(),
+		Handler:           app.Handler(),
 		ReadHeaderTimeout: 10 * time.Second,
 		IdleTimeout:       120 * time.Second,
 	}
@@ -66,9 +76,10 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	<-stop
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	stopScheduler()
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	_ = srv.Shutdown(ctx)
+	_ = srv.Shutdown(shutdownCtx)
 	log.Print("已退出")
 }
 

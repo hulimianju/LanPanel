@@ -1,11 +1,22 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { LayoutGrid, ListChecks, LogOut, Menu, Radar, RefreshCw, SlidersHorizontal, X } from 'lucide-vue-next'
 import { useApp } from '@/stores/app'
+import { useDiscovery } from '@/stores/discovery'
 
 const app = useApp()
+const disc = useDiscovery()
 const route = useRoute()
+
+// 侧边栏角标：新设备数量、扫描状态
+let timer: number | undefined
+const refreshStatus = () => disc.loadStatus().catch(() => {})
+onMounted(() => {
+  refreshStatus()
+  timer = window.setInterval(refreshStatus, 30000)
+})
+onBeforeUnmount(() => clearInterval(timer))
 const router = useRouter()
 const mobileOpen = ref(false)
 watch(() => route.fullPath, () => (mobileOpen.value = false))
@@ -57,13 +68,19 @@ async function logout() {
         class="lp-focus flex h-9 items-center gap-2.5 rounded-sm px-2.5 text-sm transition-colors"
         :class="route.path === n.to ? 'bg-surface-2 font-medium text-fg' : 'text-fg-2 hover:bg-surface-hover hover:text-fg'"
       >
-        <component :is="n.icon" class="size-[17px]" :stroke-width="1.8" />{{ n.label }}
+        <component :is="n.icon" class="size-[17px]" :stroke-width="1.8" /><span class="grow">{{ n.label }}</span>
+        <span
+          v-if="n.to === '/admin/discovery' && disc.summary?.new"
+          class="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-soft px-1.5 text-[11px] font-semibold text-accent-soft-fg"
+        >{{ disc.summary.new }}</span>
+        <RefreshCw v-if="n.to === '/admin/scan' && disc.status?.running" class="size-3.5 animate-spin text-accent" />
       </RouterLink>
       <div class="grow" />
       <div class="flex flex-col gap-1 rounded-md border border-line bg-surface p-3">
         <div class="flex items-center gap-2 text-xs text-fg-2">
-          <span class="size-[7px] rounded-full bg-success" />运行中
+          <span class="size-[7px] rounded-full bg-success" />{{ disc.status?.running ? '正在扫描…' : '运行中' }}
         </div>
+        <div v-if="disc.summary" class="text-[11px] text-fg-3">{{ disc.summary.online }} 台设备在线</div>
         <div class="font-mono text-[11px] leading-relaxed text-fg-3">LanPanel {{ app.version }}</div>
       </div>
       <div class="mt-1.5 flex h-11 items-center gap-2.5 px-2">

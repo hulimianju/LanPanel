@@ -14,7 +14,7 @@ import Segmented from '@/components/ui/Segmented.vue'
 import IconPicker from './IconPicker.vue'
 
 const open = defineModel<boolean>('open', { default: false })
-const props = defineProps<{ item?: Item | null; groupId?: string; groups: Group[] }>()
+const props = defineProps<{ item?: Item | null; groupId?: string; groups: Group[]; prefill?: Partial<Item> }>()
 
 const panel = usePanel()
 const app = useApp()
@@ -23,6 +23,8 @@ const form = reactive({
   title: '', urlLan: '', urlWan: '', desc: '', groupId: '',
   openMode: 'new' as 'new' | 'self',
   icon: { type: 'auto', value: '', color: '' } as Icon,
+  deviceMac: '' as string | undefined,
+  devicePort: 0 as number | undefined,
 })
 const saving = ref(false)
 const fetching = ref(false)
@@ -37,7 +39,18 @@ watch(open, (v) => {
     groupId: it?.groupId ?? props.groupId ?? props.groups[0]?.id ?? '',
     openMode: it?.openMode ?? 'new',
     icon: it ? { ...it.icon } : { type: 'auto', value: '', color: '' },
+    deviceMac: it?.deviceMac ?? '',
+    devicePort: it?.devicePort ?? 0,
   })
+  // 从设备发现页「加入面板」时预填
+  if (!it && props.prefill) {
+    const p = props.prefill
+    Object.assign(form, {
+      title: p.title ?? '', urlLan: p.urlLan ?? '', urlWan: p.urlWan ?? '', desc: p.desc ?? '',
+      icon: p.icon ? { ...p.icon } : form.icon, deviceMac: p.deviceMac ?? '', devicePort: p.devicePort ?? 0,
+    })
+    if (form.icon.type === 'auto' && !form.icon.value && fetchUrl.value) autoFetch()
+  }
 })
 
 const fetchUrl = computed(() => (/^https?:\/\//i.test(form.urlLan) ? form.urlLan : /^https?:\/\//i.test(form.urlWan) ? form.urlWan : ''))
@@ -78,6 +91,10 @@ async function save() {
   if (!form.urlLan && !form.urlWan) return (error.value = '内网地址和外网地址至少填写一个')
   saving.value = true
   try {
+    // 面板还没有分组时自动创建一个
+    if (!form.groupId || !panel.groups.some((g) => g.id === form.groupId)) {
+      form.groupId = panel.groups[0]?.id ?? (await panel.addGroup('局域网服务')).id
+    }
     const input = { ...form, icon: { ...form.icon } }
     if (props.item) await panel.updateItem(props.item.id, input)
     else await panel.addItem(input)

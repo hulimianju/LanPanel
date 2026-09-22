@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"lanpanel/internal/auth"
+	"lanpanel/internal/discovery"
 	"lanpanel/internal/store"
 	"lanpanel/internal/sysinfo"
 )
@@ -27,6 +28,7 @@ const userKey ctxKey = 1
 
 type Server struct {
 	store      *store.Store
+	scanner    *discovery.Scanner
 	sampler    *sysinfo.Sampler
 	limiter    *auth.Limiter
 	uploadsDir string
@@ -34,8 +36,8 @@ type Server struct {
 	version    string
 }
 
-func New(st *store.Store, dataDir string, web fs.FS, version string) *Server {
-	return &Server{
+func New(st *store.Store, devices *discovery.DeviceStore, dataDir string, web fs.FS, version string) *Server {
+	s := &Server{
 		store:      st,
 		sampler:    sysinfo.NewSampler(),
 		limiter:    auth.NewLimiter(8, 10*time.Minute),
@@ -43,7 +45,12 @@ func New(st *store.Store, dataDir string, web fs.FS, version string) *Server {
 		web:        web,
 		version:    version,
 	}
+	s.scanner = discovery.NewScanner(devices, s.DiscoveryConfig, s.RuleList, nil)
+	return s
 }
+
+// Scanner 返回设备扫描器（由 main 启动定时调度）。
+func (s *Server) Scanner() *discovery.Scanner { return s.scanner }
 
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
@@ -73,6 +80,29 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/icon/fetch", s.admin(s.fetchIcon))
 	mux.HandleFunc("GET /api/export", s.admin(s.exportData))
 	mux.HandleFunc("POST /api/import", s.admin(s.importData))
+
+	// 设备发现
+	mux.HandleFunc("GET /api/discovery/devices", s.admin(s.listDevices))
+	mux.HandleFunc("GET /api/discovery/devices/{key}", s.admin(s.getDevice))
+	mux.HandleFunc("PUT /api/discovery/devices/{key}", s.admin(s.updateDevice))
+	mux.HandleFunc("DELETE /api/discovery/devices/{key}", s.admin(s.deleteDevice))
+	mux.HandleFunc("POST /api/discovery/ack-all", s.admin(s.ackAllDevices))
+	mux.HandleFunc("GET /api/discovery/status", s.admin(s.discoveryStatus))
+	mux.HandleFunc("GET /api/discovery/logs", s.admin(s.discoveryLogs))
+	mux.HandleFunc("POST /api/discovery/scan", s.admin(s.startScan))
+	mux.HandleFunc("POST /api/discovery/cancel", s.admin(s.cancelScan))
+	mux.HandleFunc("GET /api/discovery/scans", s.admin(s.listScans))
+	mux.HandleFunc("GET /api/discovery/config", s.admin(s.getDiscoveryConfig))
+	mux.HandleFunc("PUT /api/discovery/config", s.admin(s.putDiscoveryConfig))
+
+	// 端口规则
+	mux.HandleFunc("GET /api/rules", s.admin(s.listRules))
+	mux.HandleFunc("POST /api/rules", s.admin(s.saveRule))
+	mux.HandleFunc("GET /api/rules/export", s.admin(s.exportRules))
+	mux.HandleFunc("POST /api/rules/import", s.admin(s.importRules))
+	mux.HandleFunc("POST /api/rules/test", s.admin(s.testRule))
+	mux.HandleFunc("PUT /api/rules/{id}", s.admin(s.saveRule))
+	mux.HandleFunc("DELETE /api/rules/{id}", s.admin(s.deleteRule))
 
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusNotFound, "接口不存在")

@@ -1,6 +1,11 @@
 package store
 
-import "time"
+import (
+	"time"
+
+	"lanpanel/internal/discovery"
+	"lanpanel/internal/rules"
+)
 
 // Data 是持久化到 data.json 的全部内容。
 type Data struct {
@@ -10,6 +15,10 @@ type Data struct {
 	Settings Settings `json:"settings"`
 	Groups   []Group  `json:"groups"`
 	Items    []Item   `json:"items"`
+
+	Discovery discovery.Config `json:"discovery"`
+	// RuleOverrides 保存用户修改过的内置规则与自定义规则（同 ID 覆盖内置规则）
+	RuleOverrides []rules.Rule `json:"ruleOverrides"`
 }
 
 type User struct {

@@ -1,0 +1,8 @@
+config lanpanel 'main'
+	# 是否启用
+	option enabled '1'
+	# 监听地址，改端口后执行 /etc/init.d/lanpanel restart
+	option listen ':3080'
+	# 数据目录（面板配置、设备库、上传的图片）。
+	# 设备库在每次扫描后写入；闪存较小或担心写入寿命时，建议改到 U 盘，如 /mnt/sda1/lanpanel
+	option data '/etc/lanpanel'

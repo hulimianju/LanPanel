@@ -1,0 +1,17 @@
+appname               = lanpanel
+version               = {{VERSION}}
+display_name          = LanPanel
+desc                  = 局域网导航面板与设备发现：像 Sun-Panel 一样管理常用网页服务，并通过 ARP、mDNS、SSDP、SNMP 与端口指纹自动发现局域网里的设备和服务；设备 IP 变化后，面板中的地址会自动跟随。安装后访问 http://NAS的IP:3080 ，首次打开时创建管理员账号。
+platform              = {{PLATFORM}}
+source                = thirdparty
+maintainer            = hulimianju
+maintainer_url        = https://github.com/hulimianju/LanPanel
+distributor           = hulimianju
+distributor_url       = https://github.com/hulimianju/LanPanel
+desktop_uidir         = ui
+desktop_applaunchname = lanpanel.Application
+service_port          = 3080
+checkport             = true
+ctl_stop              = true
+disable_authorization_path = true
+changelog             = {{CHANGELOG}}

@@ -1,11 +1,11 @@
 # LanPanel 构建脚本
 # 本机 Go 不在 PATH 时：make GO=~/sdk/go/bin/go
 GO      ?= go
-VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo 0.1.0-dev)
+VERSION ?= $(shell cat VERSION 2>/dev/null || echo 0.0.0)
 LDFLAGS := -s -w -X main.Version=$(VERSION)
 OUT     := dist
 
-.PHONY: all web build run dev-web test cross clean docker docker-save docker-push
+.PHONY: all web build run dev-web test cross clean docker docker-save docker-push ipk fpk bins FORCE
 
 all: web build
 
@@ -33,6 +33,35 @@ cross: web
 	CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(OUT)/lanpanel-linux-mipsle ./cmd/lanpanel
 	CGO_ENABLED=0 GOOS=linux GOARCH=mips GOMIPS=softfloat $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(OUT)/lanpanel-linux-mips ./cmd/lanpanel
 	@ls -lh $(OUT)
+
+# ---- OpenWrt ipk / 飞牛 fpk ----
+# 各架构的 Go 编译参数
+GOENV_amd64  := GOARCH=amd64
+GOENV_arm64  := GOARCH=arm64
+GOENV_armv7  := GOARCH=arm GOARM=7
+GOENV_mipsle := GOARCH=mipsle GOMIPS=softfloat
+GOENV_mips   := GOARCH=mips GOMIPS=softfloat
+
+$(OUT)/bin/lanpanel-linux-%: FORCE
+	@test -f web/dist/index.html || { echo "请先执行 make web 构建前端"; exit 1; }
+	@mkdir -p $(OUT)/bin
+	CGO_ENABLED=0 GOOS=linux $(GOENV_$*) $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $@ ./cmd/lanpanel
+
+# 例：make ipk IPK_ARCHS="arm64 mipsle" UPX=1
+IPK_ARCHS ?= amd64 arm64 armv7 mipsle mips
+ipk: $(foreach a,$(IPK_ARCHS),$(OUT)/bin/lanpanel-linux-$(a))
+	@for a in $(IPK_ARCHS); do \
+		$(GO) run ./deploy/pack ipk -arch $$a -bin $(OUT)/bin/lanpanel-linux-$$a -version $(VERSION) -out $(OUT) $(if $(UPX),-upx) || exit 1; \
+	done
+
+# 需要官方 fnpack（在 PATH 中，或 make fpk FNPACK=/path/to/fnpack）
+FPK_ARCHS ?= amd64 arm64
+fpk: $(foreach a,$(FPK_ARCHS),$(OUT)/bin/lanpanel-linux-$(a))
+	@for a in $(FPK_ARCHS); do \
+		$(GO) run ./deploy/pack fpk -arch $$a -bin $(OUT)/bin/lanpanel-linux-$$a -version $(VERSION) -out $(OUT) $(if $(FNPACK),-fnpack $(FNPACK)) || exit 1; \
+	done
+
+FORCE:
 
 # ---- Docker ----
 IMAGE     ?= lanpanel

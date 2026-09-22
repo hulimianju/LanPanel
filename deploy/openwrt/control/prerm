@@ -1,0 +1,5 @@
+#!/bin/sh
+[ -n "${IPKG_INSTROOT}" ] && exit 0
+/etc/init.d/lanpanel stop 2>/dev/null
+/etc/init.d/lanpanel disable 2>/dev/null
+exit 0

@@ -1,0 +1,13 @@
+{
+	"admin/services/lanpanel": {
+		"title": "LanPanel",
+		"order": 90,
+		"action": {
+			"type": "view",
+			"path": "lanpanel"
+		},
+		"depends": {
+			"acl": [ "luci-app-lanpanel" ]
+		}
+	}
+}

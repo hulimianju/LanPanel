@@ -1,0 +1,4 @@
+#!/bin/bash
+# 卸载后清理本应用自己的运行时文件。数据目录（面板配置、设备库）由飞牛按卸载选项处理。
+rm -f "${TRIM_PKGVAR}/lanpanel.pid" 2>/dev/null
+exit 0

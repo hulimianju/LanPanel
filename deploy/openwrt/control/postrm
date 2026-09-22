@@ -1,0 +1,5 @@
+#!/bin/sh
+[ -n "${IPKG_INSTROOT}" ] && exit 0
+rm -rf /tmp/luci-indexcache* /tmp/luci-modulecache 2>/dev/null
+echo "LanPanel 已卸载；数据目录（默认 /etc/lanpanel）已保留，如不再需要可手动删除"
+exit 0

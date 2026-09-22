@@ -1,0 +1,9 @@
+#!/bin/sh
+[ -n "${IPKG_INSTROOT}" ] && exit 0
+/etc/init.d/lanpanel enable
+/etc/init.d/lanpanel restart
+rm -rf /tmp/luci-indexcache* /tmp/luci-modulecache 2>/dev/null
+/etc/init.d/rpcd reload 2>/dev/null
+ip=$(uci -q get network.lan.ipaddr | cut -d/ -f1)
+echo "LanPanel 已启动：http://${ip:-路由器IP}:3080 （首次访问会引导创建管理员）"
+exit 0

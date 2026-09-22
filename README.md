@@ -2,7 +2,7 @@
 
 局域网导航面板 + 设备发现。类似 Sun-Panel 的书签面板，额外提供局域网设备嗅探：用 ARP、mDNS、SSDP、NetBIOS 和端口指纹找出网内设备与服务，书签可以绑定到设备的 MAC 地址，设备 IP 变化后自动更新。**完全离线运行，不依赖外网。**
 
-> 当前进度：**阶段 1（导航面板）、阶段 2（设备发现）已完成**，Docker 镜像可用。IP 自动跟随（阶段 3）、飞牛 / OpenWrt 安装包（阶段 4）开发中。
+> 当前进度：**阶段 1（导航面板）、阶段 2（设备发现）已完成**，Docker 镜像、飞牛 fpk、OpenWrt ipk 均可构建。IP 自动跟随（阶段 3）开发中。
 > 设计稿：`design/` 目录。
 
 ## 特点
@@ -68,6 +68,16 @@
 
 带匹配条件的网页规则**不局限于声明的端口**。比如 Jellyfin 被映射到 18096 端口，依然能靠页面标题识别出来。
 
+## 安装包
+
+| 形式 | 构建 | 安装 |
+|---|---|---|
+| 飞牛 fnOS | `make fpk`（需官方 fnpack） | 应用中心 → 手动安装 `lanpanel_<版本>_<x86\|arm>.fpk` |
+| OpenWrt | `make ipk`（无需 SDK） | `opkg install lanpanel_<版本>-1_<架构>.ipk`，LuCI「服务」菜单出现入口 |
+| Docker | `make docker` | 见下方「Docker 部署」 |
+
+打包步骤、架构对照表、权限设计与排查方法见 **[docs/packaging.md](docs/packaging.md)**。
+
 ## Docker 部署
 
 ```bash
@@ -110,6 +120,8 @@ make run          # 启动后端 :3080
 make dev-web      # 另开终端：前端热更新 http://localhost:5173（接口代理到 :3080）
 make test         # 单元测试
 make cross        # 交叉编译 amd64 / arm64 / armv7 / mipsle / mips
+make ipk          # OpenWrt 安装包（5 个架构）
+make fpk          # 飞牛安装包（x86 / arm，需要 fnpack）
 ```
 
 ### 目录结构
@@ -128,6 +140,12 @@ web/                 Vue 3 + TypeScript + Tailwind 前端
   src/styles/main.css    设计变量：界面主题 + 面板表面（壁纸深浅适配）
   src/lib/luminance.ts   壁纸亮度采样与对比度计算
 design/              UI 设计稿（画布源文件）
+assets/icon/         应用图标（SVG 源文件与各尺寸 PNG / ICO）
+deploy/docker/       docker-compose
+deploy/fnos/         飞牛 fpk 模板（manifest、生命周期脚本、桌面入口）
+deploy/openwrt/      OpenWrt ipk 文件（procd 服务、UCI 配置、LuCI 入口）
+deploy/pack/         ipk / fpk 打包工具
+docs/                打包与安装文档
 ```
 
 ### 主题与壁纸的样式体系

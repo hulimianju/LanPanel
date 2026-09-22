@@ -1,0 +1,15 @@
+#!/bin/sh
+# 安装前检查架构：同一个 ipk 不适用于所有 CPU，装错会导致程序无法运行
+[ -n "${IPKG_INSTROOT}" ] && exit 0
+want="{{OPENWRT_ARCH}}"
+have=$(. /etc/openwrt_release 2>/dev/null; echo "$DISTRIB_ARCH")
+case "$have" in
+	$want) exit 0 ;;
+esac
+if [ -z "$have" ]; then
+	echo "无法读取 /etc/openwrt_release 中的架构信息，跳过检查"
+	exit 0
+fi
+echo "架构不匹配：本安装包适用于 ${want}，当前设备为 ${have}。"
+echo "请下载对应架构的安装包（opkg print-architecture 可查看本机架构）。"
+exit 1

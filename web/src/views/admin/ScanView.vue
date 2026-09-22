@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { Check, Info, Plus, RefreshCw, X, Zap } from 'lucide-vue-next'
+import { Check, Info, Plus, RefreshCw, TriangleAlert, X, Zap } from 'lucide-vue-next'
 import { api } from '@/lib/api'
 import type { DiscoveryConfig, LogLine, ScanSummary } from '@/lib/types'
 import { useDiscovery } from '@/stores/discovery'
@@ -172,6 +172,11 @@ const nextText = computed(() => {
         <Button @click="start('quick')"><Zap class="size-3.5" />快速扫描</Button>
         <Button variant="primary" @click="start('full')"><RefreshCw class="size-3.5" />完整扫描</Button>
       </template>
+    </div>
+
+    <div v-if="status?.warning" class="flex items-start gap-2.5 rounded-md border border-warning/40 bg-warning-soft px-4 py-3 text-[13px] text-warning-fg" role="alert">
+      <TriangleAlert class="mt-0.5 size-4 shrink-0" />
+      <span>{{ status.warning }}</span>
     </div>
 
     <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">

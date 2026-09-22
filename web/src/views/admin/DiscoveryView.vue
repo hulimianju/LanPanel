@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { ChevronRight, LayoutGrid, List, ListChecks, Radar, RefreshCw, Search } from 'lucide-vue-next'
+import { ChevronRight, LayoutGrid, List, ListChecks, Radar, RefreshCw, Search, TriangleAlert } from 'lucide-vue-next'
 import { useDiscovery } from '@/stores/discovery'
 import { api } from '@/lib/api'
 import type { Device, ScanSummary } from '@/lib/types'
@@ -143,6 +143,11 @@ const drawerOpen = computed({
         <RefreshCw class="size-[15px] animate-spin" />扫描中 {{ Math.round(disc.status.percent) }}%
       </RouterLink>
       <Button v-else variant="primary" @click="startScan"><RefreshCw class="size-[15px]" />立即扫描</Button>
+    </div>
+
+    <div v-if="disc.status?.warning" class="flex items-start gap-2.5 rounded-md border border-warning/40 bg-warning-soft px-4 py-3 text-[13px] text-warning-fg" role="alert">
+      <TriangleAlert class="mt-0.5 size-4 shrink-0" />
+      <span>{{ disc.status.warning }}</span>
     </div>
 
     <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">

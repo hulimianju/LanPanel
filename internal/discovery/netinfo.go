@@ -56,6 +56,47 @@ func localIfaces() []localIface {
 	return out
 }
 
+// EnvWarning 检测无法扫描真实局域网的运行环境，返回给用户的提示（正常环境返回空串）：
+//   - 容器使用 bridge 网络：只能看到容器内部网段。host 网络模式下容器能看到宿主机的全部网卡
+//     （包括 docker0、veth*），bridge 模式下看不到，据此区分；
+//   - Docker Desktop（macOS / Windows）：所谓 host 网络其实是它内置 Linux 虚拟机的网络。
+func EnvWarning() string {
+	if b, err := os.ReadFile("/proc/sys/kernel/osrelease"); err == nil {
+		rel := strings.ToLower(string(b))
+		if strings.Contains(rel, "linuxkit") || strings.Contains(rel, "wsl2") {
+			if inContainer() {
+				return "检测到运行在 Docker Desktop（macOS / Windows）中：它的网络位于内置虚拟机里，无法扫描真实局域网。设备发现请部署在 Linux 主机（如飞牛、PVE、Ubuntu）上并使用 host 网络。"
+			}
+		}
+	}
+	if inContainer() && !seesHostIfaces() {
+		return "检测到容器使用 bridge 网络，只能看到 Docker 内部网段，已停止自动扫描。请在 docker-compose.yml 中设置 network_mode: host（或 docker run --network host）后重新创建容器。"
+	}
+	return ""
+}
+
+func inContainer() bool {
+	for _, p := range []string{"/.dockerenv", "/run/.containerenv"} {
+		if _, err := os.Stat(p); err == nil {
+			return true
+		}
+	}
+	return false
+}
+
+// seesHostIfaces 判断能否看到宿主机的容器网桥（host 网络模式的特征）。
+func seesHostIfaces() bool {
+	ifs, _ := net.Interfaces()
+	for _, i := range ifs {
+		n := i.Name
+		if strings.HasPrefix(n, "docker") || strings.HasPrefix(n, "veth") || strings.HasPrefix(n, "podman") ||
+			strings.HasPrefix(n, "cni-") || dockerBridge.MatchString(n) {
+			return true
+		}
+	}
+	return false
+}
+
 // maxHostsPerNet 限制单个网段的扫描规模；更大的网段收缩为本机所在的 /24。
 const maxPrefix = 22
 

@@ -60,7 +60,8 @@ type Status struct {
 	Found     int       `json:"found"`
 	NextFull  time.Time `json:"nextFull,omitempty"`
 	NextQuick time.Time `json:"nextQuick,omitempty"`
-	Privilege string    `json:"privilege"` // 主机发现方式说明
+	Privilege string    `json:"privilege"`         // 主机发现方式说明
+	Warning   string    `json:"warning,omitempty"` // 运行环境问题（如容器使用 bridge 网络）
 }
 
 type LogLine struct {
@@ -101,6 +102,7 @@ func (s *Scanner) Status() Status {
 	defer s.mu.Unlock()
 	st := s.status
 	st.Phases = append([]Phase(nil), s.status.Phases...)
+	st.Warning = EnvWarning()
 	cfg := s.config()
 	if cfg.FullInterval > 0 {
 		st.NextFull = s.lastFull.Add(time.Duration(cfg.FullInterval) * time.Minute)
@@ -240,6 +242,11 @@ func (s *Scanner) buildTargets(cfg Config, ifaces []localIface) []target {
 		}
 		seen[k] = true
 		out = append(out, target{Net: n, Iface: ifi, Hosts: hostsOf(n)})
+	}
+	if w := EnvWarning(); w != "" && cfg.AutoSubnets {
+		// 容器内部网段不是用户的局域网，扫描它只会得到误导性的结果
+		s.addLog("WARN", "-", w)
+		cfg.AutoSubnets = false
 	}
 	if cfg.AutoSubnets {
 		for i := range ifaces {

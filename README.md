@@ -88,7 +88,17 @@ make docker BASE_REGISTRY=docker.m.daocloud.io
 cd deploy/docker && docker compose up -d
 ```
 
-镜像约 18MB，运行时内存约 10MB。**必须使用 host 网络**（compose 文件已配置）：在 bridge 网络下，所有访问者都显示为 Docker 网关 IP，内外网自动判断会失效；设备发现也收不到局域网广播。
+镜像约 18MB，运行时内存约 10MB。**必须使用 host 网络**（compose 文件已配置）：
+
+| | host 网络（推荐） | bridge 网络 |
+|---|---|---|
+| 设备发现扫描的网段 | 宿主机所在的局域网（ARP、mDNS、SSDP 广播正常） | 只能看到 Docker 内部网段，已自动停止扫描并提示 |
+| 本机状态卡片（CPU / 内存 / 运行时长） | 宿主机的数值（容器与宿主机共用内核） | 宿主机的数值 |
+| 网速统计 | 宿主机网卡 | 仅容器自己的流量 |
+| 「本机」设备与主机名 | 宿主机的 IP、MAC、主机名 | 容器的 |
+| 内外网地址自动判断 | 正常 | 失效（所有访问者都显示为 Docker 网关 IP） |
+
+程序会过滤 `docker0`、`veth*`、`br-xxxx` 等容器网卡，不会把 Docker 内部网络当成局域网。如果检测到运行在 bridge 网络，或者运行在 macOS / Windows 的 Docker Desktop 中（它的 host 网络其实是内置虚拟机的网络），「设备发现」页会显示提示并停止自动扫描。在 Docker Desktop 上可以正常试用面板功能，但设备发现请部署在 Linux 主机上。
 
 没有镜像仓库时，可以导出为文件，拷到 NAS 上导入：
 

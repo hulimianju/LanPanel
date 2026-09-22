@@ -154,6 +154,7 @@ export interface ScanStatus {
   nextFull?: string
   nextQuick?: string
   privilege: string
+  warning?: string
 }
 
 export interface LogLine {

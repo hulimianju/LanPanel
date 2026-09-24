@@ -230,7 +230,7 @@ Source: https://github.com/hulimianju/LanPanel
 SourceName: lanpanel
 Section: net
 URL: https://github.com/hulimianju/LanPanel
-Maintainer: hulimianju
+Maintainer: hulimianju <hulimianju@icloud.com>
 Architecture: all
 Installed-Size: %d
 Description:  局域网导航面板与设备发现（适用于 %s）。
